@@ -54,6 +54,7 @@ export const ReadReceipt = {
 
 	storeReadReceipts(messages, roomId, userId) {
 		if (RocketChat.settings.get('Message_Read_Receipt_Store_Users')) {
+
 			const ts = new Date();
 			const receipts = messages.map((message) => ({
 				_id: Random.id(),
@@ -62,6 +63,10 @@ export const ReadReceipt = {
 				messageId: message._id,
 				ts,
 			}));
+
+			messages.map((message) => {
+				RocketChat.models.Messages.incViewedCount(message._id);
+			})
 
 			if (receipts.length === 0) {
 				return;
