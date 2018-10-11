@@ -812,14 +812,17 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 		});
 	}
 
-	incViewedCount(_id) {
+	incViewedCount(_id, userId) {
 		console.log('to update the viewed count');
 		return this.update({
 			_id,
 		}, {
 			$inc: {
 				viewedcount: 1,
-			},
+            },
+            $addToSet: {
+                readBy: { _id: userId },
+            }
 		});
 	}
 

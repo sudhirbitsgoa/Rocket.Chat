@@ -65,8 +65,10 @@ export const ReadReceipt = {
 			}));
 
 			messages.map((message) => {
-				RocketChat.models.Messages.incViewedCount(message._id);
-			})
+                RocketChat.models.Messages.incViewedCount(message._id, userId);
+                RocketChat.Notifications.notifyRoom(roomId, 'stream-notify-room', { readBy: userId });
+                return null;
+            });
 
 			if (receipts.length === 0) {
 				return;
