@@ -43,6 +43,33 @@ RocketChat.API.v1.addRoute('users.create', { authRequired: true }, {
 	},
 });
 
+RocketChat.API.v1.addRoute('users.sync', { authRequired: false }, {
+	post() {
+		console.log('the body params are %j', this.bodyParams);
+		const users = this.bodyParams.users;
+		users.forEach(user => {
+			check(user, {
+				email: String,
+				name: String,
+				// password: String,
+				username: String,
+				contact: Number,
+				active: Match.Maybe(Boolean),
+				roles: Match.Maybe(Array),
+			});	
+		});
+
+		RocketChat.bulkSaveUser(this.bodyParams.users);
+		if (typeof this.bodyParams.active !== 'undefined') {
+			Meteor.runAsUser(this.userId, () => {
+				// Meteor.call('setUserActiveStatus', newUserId, this.bodyParams.active);
+			});
+		}
+
+		return RocketChat.API.v1.success({sync: 'done'});
+	},
+});
+
 RocketChat.API.v1.addRoute('users.delete', { authRequired: true }, {
 	post() {
 		if (!RocketChat.authz.hasPermission(this.userId, 'delete-user')) {

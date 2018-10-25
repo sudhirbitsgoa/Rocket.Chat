@@ -587,6 +587,15 @@ class ModelUsers extends RocketChat.models._Base {
 		return this.insert(user);
 	}
 
+	bulkInsert(users) {
+		const model = this.model.rawCollection();
+		console.log('the bulk insert');
+		users = _.each(users, (user) => {
+			user.createdAt = new Date();
+			user.avatarOrigin = 'none';
+		});
+		return model.insertMany(users);
+	}
 
 	// REMOVE
 	removeById(_id) {
@@ -628,3 +637,14 @@ Find users to send a message by email if:
 }
 
 RocketChat.models.Users = new ModelUsers(Meteor.users, true);
+/** This worked
+RocketChat.models.Users.bulkInsert([{
+	username: 'sudhirbitsgoa',
+	gender: 'M',
+	firstname: 'Sudhir',
+}, {
+	username: 'vineesha',
+	gender: 'F',
+	firstname: 'Samuel',
+}]);
+*/
