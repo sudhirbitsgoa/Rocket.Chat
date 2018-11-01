@@ -589,7 +589,6 @@ class ModelUsers extends RocketChat.models._Base {
 
 	bulkInsert(users) {
 		const model = this.model.rawCollection();
-		console.log('the bulk insert');
 		users = _.each(users, (user) => {
 			user.createdAt = new Date();
 			user.avatarOrigin = 'none';

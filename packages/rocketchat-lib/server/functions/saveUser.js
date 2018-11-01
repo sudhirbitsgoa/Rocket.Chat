@@ -257,3 +257,7 @@ RocketChat.saveUser = function(userId, userData) {
 		return true;
 	}
 };
+
+RocketChat.syncUsers = function(usersData) {
+
+}

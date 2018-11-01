@@ -96,6 +96,7 @@ Package.onUse(function(api) {
 	api.addFiles('server/functions/removeUserFromRoom.js', 'server');
 	api.addFiles('server/functions/saveUser.js', 'server');
 	api.addFiles('server/functions/bulkSaveUser.js', 'server');
+	api.addFiles('server/functions/createContacts.js', 'server');
 	api.addFiles('server/functions/saveCustomFields.js', 'server');
 	api.addFiles('server/functions/saveCustomFieldsWithoutValidation.js', 'server');
 	api.addFiles('server/functions/sendMessage.js', 'server');
@@ -132,6 +133,7 @@ Package.onUse(function(api) {
 	api.addFiles('server/models/Subscriptions.js', 'server');
 	api.addFiles('server/models/Uploads.js', 'server');
 	api.addFiles('server/models/Users.js', 'server');
+	api.addFiles('server/models/Contacts.js', 'server');
 	api.addFiles('server/models/ExportOperations.js', 'server');
 	api.addFiles('server/models/UserDataFiles.js', 'server');
 

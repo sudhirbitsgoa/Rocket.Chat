@@ -89,7 +89,7 @@ function validateUserData(userId, userData) {
 
 RocketChat.bulkSaveUser = function(usersData) {
 	console.log('the bulk save user method');
-	RocketChat.models.Users.bulkInsert(usersData);
+	return RocketChat.models.Users.bulkInsert(usersData);
 	// if (!userData._id) {
 	// 	RocketChat.validateEmailDomain(userData.email);
 

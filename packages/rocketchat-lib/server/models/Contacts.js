@@ -16,8 +16,9 @@ class ModelContacts extends RocketChat.models._Base {
 
 	// UPDATE
 	addImportIds(userId, userIds) {
+		console.log('the userids to insert', userIds);
         userIds = [].concat(userIds);
-        
+
         const query = {
 			'u._id': userId
 		};
@@ -28,8 +29,9 @@ class ModelContacts extends RocketChat.models._Base {
 				},
 			},
 		};
-
-		return this.update(query, update);
+		console.log('the query %j', update);
+		return this.update(query, update)
+		.catch(err => console.log('the err %j', err))
 	}
 }
 RocketChat.models.Contacts = new ModelContacts('contacts', true);

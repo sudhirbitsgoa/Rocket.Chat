@@ -43,9 +43,8 @@ RocketChat.API.v1.addRoute('users.create', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('users.sync', { authRequired: false }, {
+RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 	post() {
-		console.log('the body params are %j', this.bodyParams);
 		const users = this.bodyParams.users;
 		users.forEach(user => {
 			check(user, {
@@ -56,17 +55,20 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: false }, {
 				contact: Number,
 				active: Match.Maybe(Boolean),
 				roles: Match.Maybe(Array),
-			});	
+			});
 		});
 
-		RocketChat.bulkSaveUser(this.bodyParams.users);
-		if (typeof this.bodyParams.active !== 'undefined') {
-			Meteor.runAsUser(this.userId, () => {
-				// Meteor.call('setUserActiveStatus', newUserId, this.bodyParams.active);
+		RocketChat.bulkSaveUser(this.bodyParams.users)
+			.then(usersSyncd => {
+				console.log('the users synced %j', usersSyncd, this.userId);
+				const userIdsCreated = usersSyncd.insertedIds;
+				console.log('the insert ids', userIdsCreated);
+				return RocketChat.createContacts(this.userId, userIdsCreated);
+			})
+			.then(syncdContacts => {
+				console.log('the contacts are sysnc', syncdContacts);
+				return RocketChat.API.v1.success({sync: 'done'});
 			});
-		}
-
-		return RocketChat.API.v1.success({sync: 'done'});
 	},
 });
 
