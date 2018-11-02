@@ -58,16 +58,41 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 			});
 		});
 
-		RocketChat.bulkSaveUser(this.bodyParams.users)
+		// find users who already exists with the contact
+		const contactIds = [];
+		const contactsHash = {};
+		this.bodyParams.users.forEach(user => {
+			contactIds.push(user.contact);
+		});
+		const fetchedUsers = RocketChat.models.Users.findByCont(contactIds);
+		const finalSyncContacts = [];
+		fetchedUsers.forEach(user => {
+			contactsHash[user.contact] = 1;
+		});
+		this.bodyParams.users.forEach(user => {
+			user.username = user.contact.toString();
+			if (!(user.contact in contactsHash)) {
+				finalSyncContacts.push(user);
+			}
+		});
+		if (finalSyncContacts.length < 1) {
+			return RocketChat.API.v1.success({sync: 'done'});
+		}
+
+		return RocketChat.bulkSaveUser(finalSyncContacts)
 			.then(usersSyncd => {
-				console.log('the users synced %j', usersSyncd, this.userId);
+				// console.log('the users synced %j', usersSyncd, this.userId);
 				const userIdsCreated = usersSyncd.insertedIds;
-				console.log('the insert ids', userIdsCreated);
-				return RocketChat.createContacts(this.userId, userIdsCreated);
+				// console.log('the insert ids', userIdsCreated);
+				RocketChat.createContacts(this.userId, userIdsCreated);
+				return RocketChat.API.v1.success({sync: 'done'}); // this should go into then
+				// but not sure whats wrong for now will be here TO_DO
 			})
 			.then(syncdContacts => {
 				console.log('the contacts are sysnc', syncdContacts);
-				return RocketChat.API.v1.success({sync: 'done'});
+			})
+			.catch(err => {
+				console.log('the catch err %j', err);
 			});
 	},
 });

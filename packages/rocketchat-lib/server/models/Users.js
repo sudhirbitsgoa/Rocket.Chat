@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import s from 'underscore.string';
+import uuid from 'uuid/v4';
 
 class ModelUsers extends RocketChat.models._Base {
 	constructor(...args) {
@@ -590,6 +591,7 @@ class ModelUsers extends RocketChat.models._Base {
 	bulkInsert(users) {
 		const model = this.model.rawCollection();
 		users = _.each(users, (user) => {
+			user._id = uuid();
 			user.createdAt = new Date();
 			user.avatarOrigin = 'none';
 		});
@@ -601,6 +603,14 @@ class ModelUsers extends RocketChat.models._Base {
 		return this.remove(_id);
 	}
 
+	findByCont(contacts) {
+		const query = {
+			contact: {
+				$in: contacts,
+			}
+		};
+		return this.find(query).fetch();
+	}
 	/*
 Find users to send a message by email if:
 - he is not online
@@ -647,3 +657,6 @@ RocketChat.models.Users.bulkInsert([{
 	firstname: 'Samuel',
 }]);
 */
+
+// const users = RocketChat.models.Users.findByCont(['s'])
+// console.log('the users are', users);
