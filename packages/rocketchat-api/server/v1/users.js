@@ -392,6 +392,13 @@ RocketChat.API.v1.addRoute('users.getPreferences', { authRequired: true }, {
 	},
 });
 
+RocketChat.API.v1.addRoute('users.contacts', { authRequired: true }, {
+	get() {
+		const contacts = RocketChat.models.Contacts.findByUserId(this.userId);
+		return RocketChat.API.v1.success(contacts);
+	},
+});
+
 RocketChat.API.v1.addRoute('users.setPreferences', { authRequired: true }, {
 	post() {
 		check(this.bodyParams, {
