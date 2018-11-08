@@ -1,7 +1,7 @@
 Meteor.methods({
 	createPrivateGroup(name, members, readOnly = false, customFields = {}, extraData = {}) {
 		check(name, String);
-		check(members, Match.Optional([String]));
+		// check(members, Match.Optional([String])); // can be string or object
 
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'createPrivateGroup' });

@@ -10,7 +10,6 @@ RocketChat.createRoom = function(type, name, owner, members, readOnly, extraData
 	if (!name) {
 		throw new Meteor.Error('error-invalid-name', 'Invalid name', { function: 'RocketChat.createRoom' });
 	}
-
 	owner = RocketChat.models.Users.findOneByUsername(owner, { fields: { username: 1 } });
 	if (!owner) {
 		throw new Meteor.Error('error-invalid-user', 'Invalid user', { function: 'RocketChat.createRoom' });
@@ -68,7 +67,33 @@ RocketChat.createRoom = function(type, name, owner, members, readOnly, extraData
 	room = RocketChat.models.Rooms.createWithFullRoomData(room);
 
 	for (const username of members) {
-		const member = RocketChat.models.Users.findOneByUsername(username, { fields: { username: 1, 'settings.preferences': 1 } });
+		let member;
+		if (typeof username === 'object') {
+			member = username.username;
+			member = RocketChat.models.Users.findOneByUsername(member, { fields: { username: 1, 'settings.preferences': 1 } });
+			if (!member) {
+				const userDetails = {
+					name: username.name,
+					username: username.username,
+					emails: [{
+						address: username.email,
+						verified: true
+					}],
+					type: 'user',
+					role: [
+						'user'
+					],
+					requirePasswordChange: true
+				}
+				member = RocketChat.models.Users.create(userDetails);
+				member = username;
+				console.log('the member created is %j', member);
+			}
+		} else {
+			member = RocketChat.models.Users.findOneByUsername(username, { fields: { username: 1, 'settings.preferences': 1 } });
+		}
+		console.log('the member found is %j', member);
+
 		const isTheOwner = username === owner.username;
 		if (!member) {
 			continue;
