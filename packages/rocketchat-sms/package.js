@@ -13,4 +13,5 @@ Package.onUse(function(api) {
 	api.addFiles('settings.js', 'server');
 	api.addFiles('SMS.js', 'server');
 	api.addFiles('services/twilio.js', 'server');
+	api.addFiles('services/CHATUR.js', 'server');
 });
