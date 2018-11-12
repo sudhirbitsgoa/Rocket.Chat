@@ -1,6 +1,6 @@
 Meteor.startup(function() {
 	RocketChat.settings.addGroup('SMS', function() {
-		this.add('SMS_Enabled', true, {
+		this.add('SMS_Enabled', false, {
 			type: 'boolean',
 			i18nLabel: 'Enabled',
 		});

@@ -14,6 +14,13 @@ RocketChat.settings.addGroup('Accounts', function() {
 			},
 		});
 	});
+
+	this.section('SMS based authentication', function() {
+		this.add('SMS_Auth_MaxDelta', 60*20, {
+			type: 'int',
+			public: true
+		});
+	});
 });
 
 

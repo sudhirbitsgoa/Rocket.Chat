@@ -1,6 +1,36 @@
 /* globals RocketChat */
 import _ from 'underscore';
 import s from 'underscore.string';
+import speakeasy from 'speakeasy';
+
+function generateToken({ secret }) {
+	return token = speakeasy.totp({
+	  secret,
+	  encoding: 'base32'
+	});
+}
+
+function verifySMSToken({secret, token}) {
+	const delta = RocketChat.settings.get('SMS_Auth_MaxDelta');
+	const verified = speakeasy.totp.verifyDelta({
+		secret,
+		encoding: 'base32',
+		token,
+		window: delta,
+	});
+
+	return verified;
+}
+
+function sendSMS(toNumber, message, otp) {
+	const apiKey = 'A932b8f7a2dac6ee5a679fa6b53ea8bae';
+	let template = message || '\d\d\d\d is the OTP to log in to Chaturai App.  This is valid for 20 minutes.   Please do not share this OTP with anyone else.'
+	template = template.replace(' ', '+');
+	template = template.replace('\d\d\d\d', otp);
+	let url2 = `https://api-alerts.solutionsinfini.com/v4/?method=sms&api_key=${apiKey}&to=${toNumber}&sender=CHATUR&message=${template}&format=json`;
+    var res = HTTP.call('POST', url2);
+    return res;
+}
 
 RocketChat.createRoom = function(type, name, owner, members, readOnly, extraData = {}) {
 	name = s.trim(name);
@@ -71,6 +101,7 @@ RocketChat.createRoom = function(type, name, owner, members, readOnly, extraData
 		if (typeof username === 'object') {
 			member = username.username;
 			member = RocketChat.models.Users.findOneByUsername(member, { fields: { username: 1, 'settings.preferences': 1 } });
+			const secret = speakeasy.generateSecret();
 			if (!member) {
 				const userDetails = {
 					name: username.name,
@@ -79,13 +110,26 @@ RocketChat.createRoom = function(type, name, owner, members, readOnly, extraData
 						address: username.email,
 						verified: true
 					}],
+					phone_contacts: [{
+						contact: username.contact,
+						verified: false
+					}],
 					type: 'user',
 					role: [
 						'user'
 					],
-					requirePasswordChange: true
-				}
+					requirePasswordChange: true,
+					services: {
+						sms: {
+							secret: secret.base32
+						}
+					}
+				};
 				member = RocketChat.models.Users.create(userDetails);
+				const token = generateToken({secret: secret.base32});
+				sendSMS(username.contact, null, token);
+				console.log('the member created prior is %j', member, token);
+				username._id = member;
 				member = username;
 				console.log('the member created is %j', member);
 			}

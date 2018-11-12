@@ -47,3 +47,16 @@ RocketChat.models.Users.update2FABackupCodesByUserId = function(userId, backupCo
 		},
 	});
 };
+
+RocketChat.models.Users.updateSMSSecret = function(userId, secret) {
+	return this.update({
+		_id: userId,
+	}, {
+		$set: {
+			'services.sms.secret': secret,
+		},
+	});
+};
+
+
+
