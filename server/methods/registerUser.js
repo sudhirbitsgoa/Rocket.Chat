@@ -1,4 +1,22 @@
 import s from 'underscore.string';
+import speakeasy from 'speakeasy';
+
+function sendSMS(toNumber, message, otp) {
+	const apiKey = 'A932b8f7a2dac6ee5a679fa6b53ea8bae';
+	let template = message || '\d\d\d\d is the OTP to log in to Chaturai App.  This is valid for 20 minutes.   Please do not share this OTP with anyone else.'
+	template = template.replace(' ', '+');
+	template = template.replace('\d\d\d\d', otp);
+	let url2 = `https://api-alerts.solutionsinfini.com/v4/?method=sms&api_key=${apiKey}&to=${toNumber}&sender=CHATUR&message=${template}&format=json`;
+    var res = HTTP.call('POST', url2);
+    return res;
+}
+
+function generateToken({ secret }) {
+	return token = speakeasy.totp({
+	  secret,
+	  encoding: 'base32'
+	});
+}
 
 Meteor.methods({
 	registerUser(formData) {
@@ -22,6 +40,7 @@ Meteor.methods({
 				name: String,
 				secretURL: Match.Optional(String),
 				reason: Match.Optional(String),
+				contact: String
 			}));
 		}
 
@@ -32,14 +51,19 @@ Meteor.methods({
 		}
 
 		RocketChat.passwordPolicy.validate(formData.pass);
-
-		RocketChat.validateEmailDomain(formData.email);
+		if (formData.contact) { // give priority to contact
+			RocketChat.validateContactNumber(formData.contact);
+		}
+		else if (formData.email) {
+			RocketChat.validateEmailDomain(formData.email);
+		}
 
 		const userData = {
 			email: s.trim(formData.email.toLowerCase()),
 			password: formData.pass,
 			name: formData.name,
 			reason: formData.reason,
+			contact: formData.contact
 		};
 
 		// Check if user has already been imported and never logged in. If so, set password and let it through
@@ -60,7 +84,6 @@ Meteor.methods({
 		}
 
 		RocketChat.saveCustomFields(userId, formData);
-
 		try {
 			if (RocketChat.settings.get('Verification_Customized')) {
 				const subject = RocketChat.placeholders.replace(RocketChat.settings.get('Verification_Email_Subject') || '');
@@ -68,8 +91,14 @@ Meteor.methods({
 				Accounts.emailTemplates.verifyEmail.subject = () => subject;
 				Accounts.emailTemplates.verifyEmail.html = (userModel, url) => html.replace(/\[Verification_Url]/g, url);
 			}
-
-			Accounts.sendVerificationEmail(userId, userData.email);
+			// this should be replaced with phone number validation
+			if (formData.contact) {
+				const secret = speakeasy.generateSecret();
+				const token = generateToken({secret: secret.base32});
+				sendSMS(userData.contact, null, token);
+			} else if (formData.email) {
+				Accounts.sendVerificationEmail(userId, userData.email);
+			}
 		} catch (error) {
 			// throw new Meteor.Error 'error-email-send-failed', 'Error trying to send email: ' + error.message, { method: 'registerUser', message: error.message }
 		}
