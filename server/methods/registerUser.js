@@ -35,12 +35,12 @@ Meteor.methods({
 			return { id, token };
 		} else {
 			check(formData, Match.ObjectIncluding({
-				email: String,
+				email: Match.Optional(String),
 				pass: String,
 				name: String,
 				secretURL: Match.Optional(String),
 				reason: Match.Optional(String),
-				contact: String
+				contact: Match.Optional(String)
 			}));
 		}
 
@@ -50,30 +50,42 @@ Meteor.methods({
 			throw new Meteor.Error ('error-user-registration-secret', 'User registration is only allowed via Secret URL', { method: 'registerUser' });
 		}
 
-		RocketChat.passwordPolicy.validate(formData.pass);
-		if (formData.contact) { // give priority to contact
-			RocketChat.validateContactNumber(formData.contact);
-		}
-		else if (formData.email) {
-			RocketChat.validateEmailDomain(formData.email);
-		}
-
+		let secret,	importedUser, invitedUser;
 		const userData = {
-			email: s.trim(formData.email.toLowerCase()),
 			password: formData.pass,
 			name: formData.name,
 			reason: formData.reason,
-			contact: formData.contact
+			phone_contacts: [{
+				contact: formData.contact,
+				verified: false
+			}]
 		};
 
-		// Check if user has already been imported and never logged in. If so, set password and let it through
-		const importedUser = RocketChat.models.Users.findOneByEmailAddress(s.trim(formData.email.toLowerCase()));
+		RocketChat.passwordPolicy.validate(formData.pass);
+		if (formData.contact) { // give priority to contact
+			RocketChat.validateContactNumber(formData.contact);
+			// for invited users when creating a group. We should check whether they are invited and update the user details. TODO
+			invitedUser = RocketChat.models.Users.findOneByContactNumberandNotVerified(formData.contact);
+		} else if (formData.email) {
+			RocketChat.validateEmailDomain(formData.email);
+			userData.email = s.trim(formData.email.toLowerCase());
+			// Check if user has already been imported and never logged in. If so, set password and let it through
+			const importedUser = RocketChat.models.Users.findOneByEmailAddress(s.trim(formData.email.toLowerCase()));
+		}
+
 		let userId;
 		if (importedUser && importedUser.importIds && importedUser.importIds.length && !importedUser.lastLogin) {
 			Accounts.setPassword(importedUser._id, userData.password);
 			userId = importedUser._id;
+		} else if (invitedUser) { // the user is already invited by a group admin
+			userId = invitedUser._id;
+			Accounts.setPassword(invitedUser._id, userData.password);
 		} else {
+			userData.username = formData.contact;
+			secret = speakeasy.generateSecret(); // only for new users
 			userId = Accounts.createUser(userData);
+			RocketChat.models.Users.setContact(userId, formData.contact, secret.base32);
+			console.log('the user inserted %j', userData, userId);
 		}
 
 		RocketChat.models.Users.setName(userId, s.trim(formData.name));
@@ -93,9 +105,8 @@ Meteor.methods({
 			}
 			// this should be replaced with phone number validation
 			if (formData.contact) {
-				const secret = speakeasy.generateSecret();
-				const token = generateToken({secret: secret.base32});
-				sendSMS(userData.contact, null, token);
+				const token = generateToken({secret: userData.secret});
+				sendSMS(formData.contact, null, token);
 			} else if (formData.email) {
 				Accounts.sendVerificationEmail(userId, userData.email);
 			}

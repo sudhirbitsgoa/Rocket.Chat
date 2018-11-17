@@ -1262,7 +1262,7 @@ RocketChat.settings.addGroup('Email', function() {
 		});
 	});
 	return this.section('Verification', function() {
-		this.add('Verification_Customized', false, {
+		this.add('Verification_Customized', true, {
 			type: 'boolean',
 			i18nLabel: 'Custom',
 		});

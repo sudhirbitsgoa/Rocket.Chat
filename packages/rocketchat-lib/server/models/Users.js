@@ -35,6 +35,18 @@ class ModelUsers extends RocketChat.models._Base {
 		return this.findOne(query, options);
 	}
 
+	findOneByContactNumberandNotVerified(contact) {
+		const query = {
+			phone_contacts: {
+				$elemMatch: {
+					contact: contact,
+					verified: false,
+				},
+			},
+		};
+		return this.findOne(query);
+	}
+
 	findOneAdmin(admin, options) {
 		const query = { admin };
 
@@ -329,6 +341,44 @@ class ModelUsers extends RocketChat.models._Base {
 
 		return this.update(query, update);
 	}
+
+	setContact(_id, contact, secret) {
+		const update = {
+			$set: {
+				phone_contacts: [{
+					contact: contact,
+					verified: false,
+				},
+				],
+				services: {
+					sms: secret
+				}
+			},
+		};
+
+		return this.update(_id, update);
+	}
+
+	setContactVerified(_id, contact) {
+		const query = {
+			_id,
+			phone_contacts: {
+				$elemMatch: {
+					contact: contact,
+					verified: false,
+				},
+			},
+		};
+
+		const update = {
+			$set: {
+				'phone_contacts.$.verified': true,
+			},
+		};
+
+		return this.update(query, update);
+	}
+
 
 	setName(_id, name) {
 		const update = {

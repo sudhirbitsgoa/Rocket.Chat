@@ -230,6 +230,39 @@ RocketChat.API.v1.addRoute('users.register', { authRequired: false }, {
 	},
 });
 
+
+RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
+	post() {
+		if (this.userId) {
+			return RocketChat.API.v1.failure('Logged in users can not verify again.');
+		}
+
+		// We set their username here, so require it
+		// The `registerUser` checks for the other requirements
+		check(this.bodyParams, Match.ObjectIncluding({
+			token: String,
+			contact: String,
+			username: String
+		}));
+		const invitedUser = RocketChat.models.Users.findOneByContactNumberandNotVerified(this.bodyParams.contact);
+		console.log('the user is', invitedUser);
+		if (!invitedUser) {
+			throw new Meteor.Error('error-not-allowed', 'validate otp not available', {
+				method: 'users.verifyToken',
+			});
+		}
+		let userId = invitedUser._id;
+		console.log('the  invited User is %j', invitedUser)
+		// Register the user
+		RocketChat.models.Users.setContactVerified(invitedUser._id, this.bodyParams.contact);
+
+		// Now set their username
+		Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.username));
+
+		return RocketChat.API.v1.success({ user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }) });
+	},
+});
+
 RocketChat.API.v1.addRoute('users.resetAvatar', { authRequired: true }, {
 	post() {
 		const user = this.getUserFromParams();
