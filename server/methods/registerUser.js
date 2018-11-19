@@ -70,7 +70,7 @@ Meteor.methods({
 			RocketChat.validateEmailDomain(formData.email);
 			userData.email = s.trim(formData.email.toLowerCase());
 			// Check if user has already been imported and never logged in. If so, set password and let it through
-			const importedUser = RocketChat.models.Users.findOneByEmailAddress(s.trim(formData.email.toLowerCase()));
+			importedUser = RocketChat.models.Users.findOneByEmailAddress(s.trim(formData.email.toLowerCase()));
 		}
 
 		let userId;
@@ -80,12 +80,13 @@ Meteor.methods({
 		} else if (invitedUser) { // the user is already invited by a group admin
 			userId = invitedUser._id;
 			Accounts.setPassword(invitedUser._id, userData.password);
-		} else {
+		} else if (formData.contact) {
 			userData.username = formData.contact;
 			secret = speakeasy.generateSecret(); // only for new users
-			userId = Accounts.createUser(userData);
 			RocketChat.models.Users.setContact(userId, formData.contact, secret.base32);
-			console.log('the user inserted %j', userData, userId);
+			console.log('the user ffinserted %j', userData, userId);
+		} else {
+			userId = Accounts.createUser(userData);
 		}
 
 		RocketChat.models.Users.setName(userId, s.trim(formData.name));
