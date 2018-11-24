@@ -44,6 +44,7 @@ class ModelUsers extends RocketChat.models._Base {
 				},
 			},
 		};
+		console.log('the query is', query);
 		return this.findOne(query);
 	}
 

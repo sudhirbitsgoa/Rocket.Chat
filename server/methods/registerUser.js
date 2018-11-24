@@ -83,8 +83,9 @@ Meteor.methods({
 		} else if (formData.contact) {
 			userData.username = formData.contact;
 			secret = speakeasy.generateSecret(); // only for new users
+			userId = Accounts.createUser(userData);
 			RocketChat.models.Users.setContact(userId, formData.contact, secret.base32);
-			console.log('the user ffinserted %j', userData, userId);
+			Accounts.setPassword(userId, userData.password);
 		} else {
 			userId = Accounts.createUser(userData);
 		}

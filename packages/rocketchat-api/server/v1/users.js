@@ -245,14 +245,13 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 			username: String
 		}));
 		const invitedUser = RocketChat.models.Users.findOneByContactNumberandNotVerified(this.bodyParams.contact);
-		console.log('the user is', invitedUser);
 		if (!invitedUser) {
-			throw new Meteor.Error('error-not-allowed', 'validate otp not available', {
+			throw new Meteor.Error('error-not-allowed', 'contact number not registered', {
 				method: 'users.verifyToken',
 			});
+			return;
 		}
 		let userId = invitedUser._id;
-		console.log('the  invited User is %j', invitedUser)
 		// Register the user
 		RocketChat.models.Users.setContactVerified(invitedUser._id, this.bodyParams.contact);
 
