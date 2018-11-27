@@ -115,19 +115,20 @@ RocketChat.createRoom = function(type, name, owner, members, readOnly, extraData
 						verified: false
 					}],
 					type: 'user',
-					role: [
+					roles: [
 						'user'
 					],
-					requirePasswordChange: true,
+					requirePasswordChange: false,
 					services: {
 						sms: {
 							secret: secret.base32
 						}
 					}
 				};
+				userDetails.importIds = [1];
 				member = RocketChat.models.Users.create(userDetails);
 				const token = generateToken({secret: secret.base32});
-				sendSMS(username.contact, null, token);
+				// sendSMS(username.contact, null, token);
 				console.log('the member created prior is %j', member, token);
 				username._id = member;
 				member = username;

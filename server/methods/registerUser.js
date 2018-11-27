@@ -72,7 +72,7 @@ Meteor.methods({
 			// Check if user has already been imported and never logged in. If so, set password and let it through
 			importedUser = RocketChat.models.Users.findOneByEmailAddress(s.trim(formData.email.toLowerCase()));
 		}
-
+		// console.log('the imported user %j', importedUser);
 		let userId;
 		if (importedUser && importedUser.importIds && importedUser.importIds.length && !importedUser.lastLogin) {
 			Accounts.setPassword(importedUser._id, userData.password);
@@ -105,7 +105,7 @@ Meteor.methods({
 				Accounts.emailTemplates.verifyEmail.subject = () => subject;
 				Accounts.emailTemplates.verifyEmail.html = (userModel, url) => html.replace(/\[Verification_Url]/g, url);
 			}
-			// this should be replaced with phone number validation
+			// the phone number validation should be done during registraion
 			if (formData.contact) {
 				const token = generateToken({secret: userData.secret});
 				sendSMS(formData.contact, null, token);
