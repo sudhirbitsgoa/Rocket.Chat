@@ -54,8 +54,12 @@ class ModelSubscriptions extends RocketChat.models._Base {
 
 	// FIND
 	findByUserId(userId, options) {
+		console.log('the subscription get')
 		const query =
-			{ 'u._id': userId };
+			{
+				'u._id': userId,
+				agreed: true
+			};
 
 		return this.find(query, options);
 	}
@@ -785,6 +789,37 @@ class ModelSubscriptions extends RocketChat.models._Base {
 				_id: user._id,
 				username: user.username,
 				name: user.name,
+			},
+			...RocketChat.getDefaultSubscriptionPref(user),
+			...extraData,
+		};
+
+		const result = this.insert(subscription);
+
+		RocketChat.models.Rooms.incUsersCountById(room._id);
+
+		return result;
+	}
+
+	createWithRoomAndUserNotAproved(room, user, extraData, approval) {
+		const subscription = {
+			open: false,
+			alert: false,
+			unread: 0,
+			userMentions: 0,
+			groupMentions: 0,
+			ts: room.ts,
+			rid: room._id,
+			name: room.name,
+			fname: room.fname,
+			customFields: room.customFields,
+			t: room.t,
+			u: {
+				// _id: user._id,
+				username: user.username,
+				name: user.name,
+				invited_id: user._id,
+				approval
 			},
 			...RocketChat.getDefaultSubscriptionPref(user),
 			...extraData,

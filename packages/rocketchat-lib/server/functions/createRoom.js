@@ -3,34 +3,34 @@ import _ from 'underscore';
 import s from 'underscore.string';
 import speakeasy from 'speakeasy';
 
-function generateToken({ secret }) {
-	return token = speakeasy.totp({
-	  secret,
-	  encoding: 'base32'
-	});
-}
+// function generateToken({ secret }) {
+// 	return token = speakeasy.totp({
+// 	  secret,
+// 	  encoding: 'base32'
+// 	});
+// }
 
-function verifySMSToken({secret, token}) {
-	const delta = RocketChat.settings.get('SMS_Auth_MaxDelta');
-	const verified = speakeasy.totp.verifyDelta({
-		secret,
-		encoding: 'base32',
-		token,
-		window: delta,
-	});
+// function verifySMSToken({secret, token}) {
+// 	const delta = RocketChat.settings.get('SMS_Auth_MaxDelta');
+// 	const verified = speakeasy.totp.verifyDelta({
+// 		secret,
+// 		encoding: 'base32',
+// 		token,
+// 		window: delta,
+// 	});
 
-	return verified;
-}
+// 	return verified;
+// }
 
-function sendSMS(toNumber, message, otp) {
-	const apiKey = 'A932b8f7a2dac6ee5a679fa6b53ea8bae';
-	let template = message || '\d\d\d\d is the OTP to log in to Chaturai App.  This is valid for 20 minutes.   Please do not share this OTP with anyone else.'
-	template = template.replace(' ', '+');
-	template = template.replace('\d\d\d\d', otp);
-	let url2 = `https://api-alerts.solutionsinfini.com/v4/?method=sms&api_key=${apiKey}&to=${toNumber}&sender=CHATUR&message=${template}&format=json`;
-    var res = HTTP.call('POST', url2);
-    return res;
-}
+// function sendSMS(toNumber, message, otp) {
+// 	const apiKey = 'A932b8f7a2dac6ee5a679fa6b53ea8bae';
+// 	let template = message || '\d\d\d\d is the OTP to log in to Chaturai App.  This is valid for 20 minutes.   Please do not share this OTP with anyone else.'
+// 	template = template.replace(' ', '+');
+// 	template = template.replace('\d\d\d\d', otp);
+// 	let url2 = `https://api-alerts.solutionsinfini.com/v4/?method=sms&api_key=${apiKey}&to=${toNumber}&sender=CHATUR&message=${template}&format=json`;
+//     var res = HTTP.call('POST', url2);
+//     return res;
+// }
 
 RocketChat.createRoom = function(type, name, owner, members, readOnly, extraData = {}) {
 	name = s.trim(name);
@@ -127,9 +127,9 @@ RocketChat.createRoom = function(type, name, owner, members, readOnly, extraData
 				};
 				userDetails.importIds = [1];
 				member = RocketChat.models.Users.create(userDetails);
-				const token = generateToken({secret: secret.base32});
+				// const token = generateToken({secret: secret.base32});
 				// sendSMS(username.contact, null, token);
-				console.log('the member created prior is %j', member, token);
+				// console.log('the member created prior is %j', member, token);
 				username._id = member;
 				member = username;
 				console.log('the member created is %j', member);
