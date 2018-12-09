@@ -832,6 +832,22 @@ class ModelSubscriptions extends RocketChat.models._Base {
 		return result;
 	}
 
+	updateSubscriptionAfterApproval(rid, uId) {
+		const query = {
+			rid: rid,
+			'u.invited_id': uId
+		};
+
+		const update = {
+			$set: {
+				'u._id': uId,
+				'u.approval.needAdminApproval': false,
+				'u.approval.needUserApproval': false
+			},
+		};
+
+		return this.update(query, update, { multi: false });
+	}
 
 	// REMOVE
 	removeByUserId(userId) {
