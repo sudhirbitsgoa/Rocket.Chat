@@ -63,6 +63,7 @@ export const ReadReceipt = {
 				messageId: message._id,
 				ts,
 			}));
+			const room = RocketChat.models.Rooms.findOneById(roomId, { fields: { usersCount: 1, t: 1} });
 
 			messages.map((message) => {
                 RocketChat.models.Messages.incViewedCount(message._id, userId);
@@ -79,6 +80,21 @@ export const ReadReceipt = {
 			} catch (e) {
 				console.error('Error inserting read receipts per user');
 			}
+			messages.map(message => {
+				// for private rooms once the message is read by all
+                // then delete the message
+                console.log('the deletion of message', room);
+                if (room.t === 'p') {
+                	// find if all the users read the message
+                	const readReciptsCount = rawReadReceipts.count({ messageId: message._id});
+                	readReciptsCount
+                		.then(count => {
+                			if (count === room.usersCount) {
+                				RocketChat.models.Messages.removeById(message._id);
+                			}
+                		});
+                }
+			});
 		}
 	},
 

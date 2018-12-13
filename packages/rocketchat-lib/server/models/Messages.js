@@ -710,7 +710,6 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 	// REMOVE
 	removeById(_id) {
 		const query =	{ _id };
-
 		return this.remove(query);
 	}
 
