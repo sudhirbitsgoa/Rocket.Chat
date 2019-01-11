@@ -81,6 +81,12 @@ Meteor.methods({
 			return;
 		}
 		const sort = sortUsers(sortBy, sortDirection);
+		// the scope of search should be only within contacts. [[to-do]]
+		const contacts = RocketChat.models.Contacts.findAllByUserId(user._id);
+		const contactId = [];
+		contacts.forEach(cont => {
+			contactId.push(cont._id);
+		});
 		return {
 			results: RocketChat.models.Users.findByActiveUsersExcept(text, [user.username], {
 				...options,
@@ -91,8 +97,8 @@ Meteor.methods({
 					createdAt: 1,
 					emails: 1,
 				},
-			}).fetch(),
-			total: RocketChat.models.Users.findByActiveUsersExcept(text, [user.username]).count(),
+			}, contactId).fetch(),
+			total: RocketChat.models.Users.findByActiveUsersExcept(text, [user.username], {}, contactId).count(),
 		};
 	},
 });

@@ -14,6 +14,21 @@ class ModelContacts extends RocketChat.models._Base {
         return this.findOne(query);
     }
 
+    // find all contacts
+    findAllByUserId(uId) {
+    	const quyer = {
+    		'u._id' : uId
+    	}
+    	return this.find(query, {_id:1});
+    }
+
+    contactsCount(uId) {
+    	const query = {
+    		'u._id': uId
+    	};
+    	return this.find(query).count();
+    }
+
 	// UPDATE
 	addImportIds(userId, userIds) {
 		console.log('the userids to insert', userIds);

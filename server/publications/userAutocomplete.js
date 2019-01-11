@@ -23,8 +23,13 @@ Meteor.publish('userAutocomplete', function(selector) {
 
 	const pub = this;
 	const exceptions = selector.exceptions || [];
-
-	const cursorHandle = RocketChat.models.Users.findActiveByUsernameOrNameRegexWithExceptions(selector.term, exceptions, options).observeChanges({
+	const contacts = RocketChat.models.Contacts.findAllByUserId(this.userId);
+	const contactId = [];
+	contacts.forEach(cont => {
+		contactId.push(cont._id);
+	});
+	// should restrict the scope with in contacts
+	const cursorHandle = RocketChat.models.Users.findActiveByUsernameOrNameRegexWithExceptions(selector.term, exceptions, options, contactId).observeChanges({
 		added(_id, record) {
 			return pub.added('autocompleteRecords', _id, record);
 		},

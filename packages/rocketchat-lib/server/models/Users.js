@@ -101,7 +101,7 @@ class ModelUsers extends RocketChat.models._Base {
 		return this.find(query, options);
 	}
 
-	findActiveByUsernameOrNameRegexWithExceptions(searchTerm, exceptions, options) {
+	findActiveByUsernameOrNameRegexWithExceptions(searchTerm, exceptions, options, inclusions) {
 		if (exceptions == null) { exceptions = []; }
 		if (options == null) { options = {}; }
 		if (!_.isArray(exceptions)) {
@@ -130,11 +130,18 @@ class ModelUsers extends RocketChat.models._Base {
 			}],
 		};
 
+		if (inclusions) {
+			query['$and'].push({
+				_id: {$in: inclusions}
+			});
+		}
+
 		return this.find(query, options);
 	}
 
-	findByActiveUsersExcept(searchTerm, exceptions, options) {
+	findByActiveUsersExcept(searchTerm, exceptions, options, inclusions) {
 		if (exceptions == null) { exceptions = []; }
+
 		if (options == null) { options = {}; }
 		if (!_.isArray(exceptions)) {
 			exceptions = [exceptions];
@@ -157,7 +164,11 @@ class ModelUsers extends RocketChat.models._Base {
 				},
 			],
 		};
-
+		if (inclusions) {
+			query.$and.push({
+				_id: { $in: inclusions }
+			});
+		}
 		// do not use cache
 		return this._db.find(query, options);
 	}
