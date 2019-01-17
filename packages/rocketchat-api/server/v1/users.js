@@ -45,8 +45,8 @@ RocketChat.API.v1.addRoute('users.create', { authRequired: true }, {
 
 RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 	post() {
-		const users = this.bodyParams.users;
-		users.forEach(user => {
+		const users = this.bodyParams && this.bodyParams.users;
+		users.forEach((user) => {
 			check(user, {
 				email: String,
 				name: String,
@@ -61,37 +61,37 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 		// find users who already exists with the contact
 		const contactIds = [];
 		const contactsHash = {};
-		this.bodyParams.users.forEach(user => {
+		this.bodyParams.users.forEach((user) => {
 			contactIds.push(user.contact);
 		});
 		const fetchedUsers = RocketChat.models.Users.findByCont(contactIds);
 		const finalSyncContacts = [];
-		fetchedUsers.forEach(user => {
+		fetchedUsers.forEach((user) => {
 			contactsHash[user.contact] = 1;
 		});
-		this.bodyParams.users.forEach(user => {
+		this.bodyParams.users.forEach((user) => {
 			user.username = user.contact.toString();
 			if (!(user.contact in contactsHash)) {
 				finalSyncContacts.push(user);
 			}
 		});
 		if (finalSyncContacts.length < 1) {
-			return RocketChat.API.v1.success({sync: 'done'});
+			return RocketChat.API.v1.success({ sync: 'done' });
 		}
 
 		return RocketChat.bulkSaveUser(finalSyncContacts)
-			.then(usersSyncd => {
+			.then((usersSyncd) => {
 				// console.log('the users synced %j', usersSyncd, this.userId);
 				const userIdsCreated = usersSyncd.insertedIds;
 				// console.log('the insert ids', userIdsCreated);
 				RocketChat.createContacts(this.userId, userIdsCreated);
-				return RocketChat.API.v1.success({sync: 'done'}); // this should go into then
+				return RocketChat.API.v1.success({ sync: 'done' }); // this should go into then
 				// but not sure whats wrong for now will be here TO_DO
 			})
-			.then(syncdContacts => {
+			.then((syncdContacts) => {
 				console.log('the contacts are sysnc', syncdContacts);
 			})
-			.catch(err => {
+			.catch((err) => {
 				console.log('the catch err %j', err);
 			});
 	},
@@ -429,7 +429,15 @@ RocketChat.API.v1.addRoute('users.contacts', { authRequired: true }, {
 		const contacts = RocketChat.models.Contacts.findByUserId(this.userId);
 		return RocketChat.API.v1.success(contacts);
 	},
+	post() {
+		check(this.bodyParams, {
+			userIds: Match.is(Array),
+		});
+		const contacts = RocketChat.models.Contacts.findByUserId(this.userId);
+		return RocketChat.API.v1.success(contacts);
+	},
 });
+// User should be able to add Rocket Chat users to his contacts based on userId
 
 RocketChat.API.v1.addRoute('users.setPreferences', { authRequired: true }, {
 	post() {

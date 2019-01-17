@@ -138,7 +138,7 @@ class ModelUsers extends RocketChat.models._Base {
 
 		return this.find(query, options);
 	}
-
+	// adding inclusions array to fetch users only from contacts
 	findByActiveUsersExcept(searchTerm, exceptions, options, inclusions) {
 		if (exceptions == null) { exceptions = []; }
 

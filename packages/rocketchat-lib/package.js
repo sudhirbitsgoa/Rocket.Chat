@@ -134,6 +134,7 @@ Package.onUse(function(api) {
 	api.addFiles('server/models/Uploads.js', 'server');
 	api.addFiles('server/models/Users.js', 'server');
 	api.addFiles('server/models/Contacts.js', 'server');
+	api.addFiles('server/models/ContactCategories.js', 'server');
 	api.addFiles('server/models/ExportOperations.js', 'server');
 	api.addFiles('server/models/UserDataFiles.js', 'server');
 
@@ -160,6 +161,7 @@ Package.onUse(function(api) {
 	api.addFiles('server/methods/checkUsernameAvailability.js', 'server');
 	api.addFiles('server/methods/cleanRoomHistory.js', 'server');
 	api.addFiles('server/methods/createChannel.js', 'server');
+	api.addFiles('server/methods/createContactCategory.js', 'server');
 	api.addFiles('server/methods/createToken.js', 'server');
 	api.addFiles('server/methods/createPrivateGroup.js', 'server');
 	api.addFiles('server/methods/deleteMessage.js', 'server');
