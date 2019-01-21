@@ -217,20 +217,21 @@ RocketChat.API.v1.addRoute('users.register', { authRequired: false }, {
 		// We set their username here, so require it
 		// The `registerUser` checks for the other requirements
 		check(this.bodyParams, Match.ObjectIncluding({
-			username: String,
+			name: String,
+			contact: String
 		}));
 
 		// Register the user
 		const userId = Meteor.call('registerUser', this.bodyParams);
 
 		// Now set their username
-		Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.username));
+		Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.name));
 
 		return RocketChat.API.v1.success({ user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }) });
 	},
 });
 
-
+import speakeasy from 'speakeasy';
 RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 	post() {
 		if (this.userId) {
@@ -242,8 +243,12 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 		check(this.bodyParams, Match.ObjectIncluding({
 			token: String,
 			contact: String,
-			username: String
+			// username: Match.Optional(String)
 		}));
+		if (!this.bodyParams.username) {
+			this.bodyParams.username = this.bodyParams.contact;
+		}
+		const token = this.bodyParams.token;
 		const invitedUser = RocketChat.models.Users.findOneByContactNumberandNotVerified(this.bodyParams.contact);
 		if (!invitedUser) {
 			throw new Meteor.Error('error-not-allowed', 'contact number not registered', {
@@ -252,13 +257,30 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 			return;
 		}
 		let userId = invitedUser._id;
+		const secret = invitedUser.services.sms;
+		console.log('the secret used', secret, token);
+		const verified = speakeasy.totp.verify({ secret: secret,
+                                       encoding: 'base32',
+                                       token: token,
+                                       window: 6,
+                                   });
+		if (!verified) {
+			throw new Meteor.Error('error-not-allowed', 'invalid otp', {
+				method: 'users.verifyToken',
+			});
+			return;
+		}
 		// Register the user
 		RocketChat.models.Users.setContactVerified(invitedUser._id, this.bodyParams.contact);
 
 		// Now set their username
 		Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.username));
-
-		return RocketChat.API.v1.success({ user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }) });
+		const loginToken = Accounts._generateStampedLoginToken();
+		Accounts._insertLoginToken(userId, loginToken);
+		return RocketChat.API.v1.success({
+			user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }),
+			authToken: loginToken.token	
+		});
 	},
 });
 

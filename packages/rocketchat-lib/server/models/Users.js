@@ -37,14 +37,13 @@ class ModelUsers extends RocketChat.models._Base {
 
 	findOneByContactNumberandNotVerified(contact) {
 		const query = {
-			phone_contacts: {
+			phones: {
 				$elemMatch: {
-					contact: contact,
-					verified: false,
+					number: contact,
+					// verified: false, irrespective of verified or not login should work
 				},
 			},
 		};
-		console.log('the query is', query);
 		return this.findOne(query);
 	}
 
@@ -357,8 +356,8 @@ class ModelUsers extends RocketChat.models._Base {
 	setContact(_id, contact, secret) {
 		const update = {
 			$set: {
-				phone_contacts: [{
-					contact: contact,
+				phones: [{
+					number: contact,
 					verified: false,
 				},
 				],
@@ -374,9 +373,9 @@ class ModelUsers extends RocketChat.models._Base {
 	setContactVerified(_id, contact) {
 		const query = {
 			_id,
-			phone_contacts: {
+			phones: {
 				$elemMatch: {
-					contact: contact,
+					number: contact,
 					verified: false,
 				},
 			},
@@ -384,7 +383,7 @@ class ModelUsers extends RocketChat.models._Base {
 
 		const update = {
 			$set: {
-				'phone_contacts.$.verified': true,
+				'phones.$.verified': true,
 			},
 		};
 

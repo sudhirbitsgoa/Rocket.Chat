@@ -2,6 +2,7 @@ import s from 'underscore.string';
 import speakeasy from 'speakeasy';
 
 function sendSMS(toNumber, message, otp) {
+	console.log('the otp is', otp);
 	const apiKey = 'A932b8f7a2dac6ee5a679fa6b53ea8bae';
 	let template = message || '\d\d\d\d is the OTP to log in to Chaturai App.  This is valid for 20 minutes.   Please do not share this OTP with anyone else.'
 	template = template.replace(' ', '+');
@@ -11,12 +12,24 @@ function sendSMS(toNumber, message, otp) {
     return res;
 }
 
-function generateToken({ secret }) {
+function generateToken(secret) {
+	console.log('the secret used', secret);
 	return token = speakeasy.totp({
 	  secret,
 	  encoding: 'base32'
 	});
 }
+// var secrett = speakeasy.generateSecret(); // only for new users
+// console.log('the secret', secrett);
+// var tokenn = generateToken(secrett.base32);
+// console.log('the token', tokenn)
+// const verifiedd = speakeasy.totp.verify({ secret: secrett.base32,
+//                                        encoding: 'base32',
+//                                        token: tokenn,
+//                                        window: 6 });
+
+// console.log('the verifff', verifiedd);
+
 
 Meteor.methods({
 	registerUser(formData) {
@@ -36,13 +49,14 @@ Meteor.methods({
 		} else {
 			check(formData, Match.ObjectIncluding({
 				email: Match.Optional(String),
-				pass: String,
+				pass: Match.Optional(String),
 				name: String,
 				secretURL: Match.Optional(String),
 				reason: Match.Optional(String),
 				contact: Match.Optional(String)
 			}));
 		}
+		console.log('the validation passed here');
 
 		if (RocketChat.settings.get('Accounts_RegistrationForm') === 'Disabled') {
 			throw new Meteor.Error('error-user-registration-disabled', 'User registration is disabled', { method: 'registerUser' });
@@ -55,13 +69,17 @@ Meteor.methods({
 			password: formData.pass,
 			name: formData.name,
 			reason: formData.reason,
-			phone_contacts: [{
-				contact: formData.contact,
+			phones: [{
+				number: formData.contact,
 				verified: false
 			}]
 		};
-
-		RocketChat.passwordPolicy.validate(formData.pass);
+		if (formData.email) { // if email is present then only
+			RocketChat.passwordPolicy.validate(formData.pass);
+		} else {
+			let randomPass = Math.random()*1000000;
+			userData.password = formData.pass = `${randomPass}PASS`;
+		}
 		if (formData.contact) { // give priority to contact
 			RocketChat.validateContactNumber(formData.contact);
 			// for invited users when creating a group. We should check whether they are invited and update the user details. TODO
@@ -79,12 +97,13 @@ Meteor.methods({
 			userId = importedUser._id;
 		} else if (invitedUser) { // the user is already invited by a group admin
 			userId = invitedUser._id;
-			Accounts.setPassword(invitedUser._id, userData.password);
-		} else if (formData.contact) {
+			secret = invitedUser.services.sms;
+			// Accounts.setPassword(invitedUser._id, userData.password);
+		} else if (formData.contact && !invitedUser) {
 			userData.username = formData.contact;
-			secret = speakeasy.generateSecret(); // only for new users
+			secret = speakeasy.generateSecret().base32; // only for new users
 			userId = Accounts.createUser(userData);
-			RocketChat.models.Users.setContact(userId, formData.contact, secret.base32);
+			RocketChat.models.Users.setContact(userId, formData.contact, secret);
 			Accounts.setPassword(userId, userData.password);
 		} else {
 			userId = Accounts.createUser(userData);
@@ -107,7 +126,7 @@ Meteor.methods({
 			}
 			// the phone number validation should be done during registraion
 			if (formData.contact) {
-				const token = generateToken({secret: userData.secret});
+				const token = generateToken(secret);
 				sendSMS(formData.contact, null, token);
 			} else if (formData.email) {
 				Accounts.sendVerificationEmail(userId, userData.email);
@@ -118,4 +137,25 @@ Meteor.methods({
 
 		return userId;
 	},
+	verifyToken({token, contact, username}) {
+		const user = RocketChat.models.Users.findOneByContactNumberandNotVerified(contact);
+		if (!user) {
+			throw new Meteor.Error('error-not-allowed', 'contact number not registered', {
+				method: 'users.verifyToken',
+			});
+			return;
+		}
+		const secret = user.services.sms;
+		const verified = speakeasy.totp.verify({ secret: secret,
+                                       encoding: 'base32',
+                                       token: token });
+		if (!verified) {
+			throw new Meteor.Error('error-not-allowed', 'invalid otp', {
+				method: 'users.verifyToken',
+			});
+			return;
+		}
+		RocketChat.models.Users.setContactVerified(user._id, this.bodyParams.contact);
+		return user;
+	}
 });
