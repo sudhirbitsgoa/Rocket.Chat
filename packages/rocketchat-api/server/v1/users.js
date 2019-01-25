@@ -217,15 +217,19 @@ RocketChat.API.v1.addRoute('users.register', { authRequired: false }, {
 		// We set their username here, so require it
 		// The `registerUser` checks for the other requirements
 		check(this.bodyParams, Match.ObjectIncluding({
-			name: String,
+			// name: String,
 			contact: String
 		}));
+
+		if(!this.bodyParams.name) {
+			this.bodyParams.name = this.bodyParams.contact;
+		}
 
 		// Register the user
 		const userId = Meteor.call('registerUser', this.bodyParams);
 
 		// Now set their username
-		Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.name));
+		// Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.name));
 
 		return RocketChat.API.v1.success({ user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }) });
 	},
@@ -237,7 +241,7 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 		if (this.userId) {
 			return RocketChat.API.v1.failure('Logged in users can not verify again.');
 		}
-
+		let window = 2; // minites
 		// We set their username here, so require it
 		// The `registerUser` checks for the other requirements
 		check(this.bodyParams, Match.ObjectIncluding({
@@ -258,11 +262,10 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 		}
 		let userId = invitedUser._id;
 		const secret = invitedUser.services.sms;
-		console.log('the secret used', secret, token);
 		const verified = speakeasy.totp.verify({ secret: secret,
                                        encoding: 'base32',
                                        token: token,
-                                       window: 6,
+                                       window: window,
                                    });
 		if (!verified) {
 			throw new Meteor.Error('error-not-allowed', 'invalid otp', {
@@ -279,7 +282,7 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 		Accounts._insertLoginToken(userId, loginToken);
 		return RocketChat.API.v1.success({
 			user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }),
-			authToken: loginToken.token	
+			authToken: loginToken.token
 		});
 	},
 });

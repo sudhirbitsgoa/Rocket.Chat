@@ -1,12 +1,14 @@
 import s from 'underscore.string';
 import speakeasy from 'speakeasy';
+let window = 2; // minites
 
 function sendSMS(toNumber, message, otp) {
 	console.log('the otp is', otp);
 	const apiKey = 'A932b8f7a2dac6ee5a679fa6b53ea8bae';
-	let template = message || '\d\d\d\d is the OTP to log in to Chaturai App.  This is valid for 20 minutes.   Please do not share this OTP with anyone else.'
-	template = template.replace(' ', '+');
+	let template = message || `%3C%23%3E \d\d\d\d is the OTP to log in to Chaturai App.  This is valid for ${window} minutes.
+eFamcaJwveo`;
 	template = template.replace('\d\d\d\d', otp);
+	template = template.replace(/\s/g, '+');
 	let url2 = `https://api-alerts.solutionsinfini.com/v4/?method=sms&api_key=${apiKey}&to=${toNumber}&sender=CHATUR&message=${template}&format=json`;
     var res = HTTP.call('POST', url2);
     return res;
@@ -50,13 +52,12 @@ Meteor.methods({
 			check(formData, Match.ObjectIncluding({
 				email: Match.Optional(String),
 				pass: Match.Optional(String),
-				name: String,
+				name: Match.Optional(String),
 				secretURL: Match.Optional(String),
 				reason: Match.Optional(String),
 				contact: Match.Optional(String)
 			}));
 		}
-		console.log('the validation passed here');
 
 		if (RocketChat.settings.get('Accounts_RegistrationForm') === 'Disabled') {
 			throw new Meteor.Error('error-user-registration-disabled', 'User registration is disabled', { method: 'registerUser' });
