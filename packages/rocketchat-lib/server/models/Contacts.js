@@ -16,7 +16,7 @@ class ModelContacts extends RocketChat.models._Base {
 
     // find all contacts
     findAllByUserId(uId) {
-    	const quyer = {
+    	const query = {
     		'u._id' : uId
     	}
     	return this.find(query, {_id:1});

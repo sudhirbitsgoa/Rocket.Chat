@@ -23,9 +23,7 @@ class ModelContactCategories extends RocketChat.models._Base {
 		const query = {
 			'u._id': uId,
 		};
-		return this.find(query, {
-			_id: 1,
-		});
+		return this.find(query).fetch();
 	}
 
 	contactsCount(uId) {
@@ -37,7 +35,6 @@ class ModelContactCategories extends RocketChat.models._Base {
 
 	// UPDATE
 	addContactIds(userId, members, category) {
-		console.log('the userids to insert', members.add);
 		const model = this.model.rawCollection();
 		const userIds = [].concat(members.add);
 		const memToRemove = [].concat(members.remove);

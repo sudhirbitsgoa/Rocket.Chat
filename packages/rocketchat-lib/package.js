@@ -162,6 +162,7 @@ Package.onUse(function(api) {
 	api.addFiles('server/methods/cleanRoomHistory.js', 'server');
 	api.addFiles('server/methods/createChannel.js', 'server');
 	api.addFiles('server/methods/createContactCategory.js', 'server');
+	api.addFiles('server/methods/getContactCategory.js', 'server');
 	api.addFiles('server/methods/createToken.js', 'server');
 	api.addFiles('server/methods/createPrivateGroup.js', 'server');
 	api.addFiles('server/methods/deleteMessage.js', 'server');
