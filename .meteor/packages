@@ -108,7 +108,6 @@ rocketchat:monitoring
 rocketchat:oauth2-server-config
 rocketchat:oembed
 rocketchat:otr
-rocketchat:postcss
 rocketchat:push-notifications
 rocketchat:reactions
 rocketchat:retention-policy
@@ -198,6 +197,5 @@ rocketchat:version-check
 rocketchat:search
 chatpal:search
 rocketchat:lazy-load
-tap:i18n
 underscore
 rocketchat:bigbluebutton
