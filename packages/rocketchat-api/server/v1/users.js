@@ -455,7 +455,7 @@ RocketChat.API.v1.addRoute('users.getPreferences', { authRequired: true }, {
 
 RocketChat.API.v1.addRoute('users.contacts', { authRequired: true }, {
 	get() {
-		const contacts = RocketChat.models.Contacts.findByUserId(this.userId);
+		const contacts = Meteor.call('getContacts');
 		return RocketChat.API.v1.success(contacts);
 	},
 	post() {

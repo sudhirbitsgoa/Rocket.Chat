@@ -30,8 +30,7 @@ class ModelContacts extends RocketChat.models._Base {
     }
 
 	// UPDATE
-	addImportIds(userId, userIds) {
-		console.log('the userids to insert', userIds);
+	addUsersToContacts(userId, userIds) {
 		const model = this.model.rawCollection();
         userIds = [].concat(userIds);
 
