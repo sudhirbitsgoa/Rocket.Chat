@@ -230,8 +230,8 @@ RocketChat.API.v1.addRoute('users.register', { authRequired: false }, {
 
 		// Now set their username
 		// Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.name));
-
-		return RocketChat.API.v1.success({ user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }) });
+		return RocketChat.API.v1.success({message: 'An otp has been sent. Verify otp to login.'});
+		// return RocketChat.API.v1.success({ user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }) });
 	},
 });
 
