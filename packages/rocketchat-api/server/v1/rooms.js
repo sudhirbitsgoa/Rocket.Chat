@@ -190,3 +190,10 @@ RocketChat.API.v1.addRoute('rooms.cleanHistory', { authRequired: true }, {
 	},
 });
 
+
+RocketChat.API.v1.addRoute('rooms.joinRoom/:rid', { authRequired: true }, {
+	get() {
+		Meteor.runAsUser(this.userId, () => Meteor.call('joinRoom', this.urlParams.rid, null, 'vialink'));
+		return RocketChat.API.v1.success();
+	}
+});

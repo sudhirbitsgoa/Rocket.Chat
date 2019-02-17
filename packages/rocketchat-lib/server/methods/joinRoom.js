@@ -1,5 +1,5 @@
 Meteor.methods({
-	joinRoom(rid, code) {
+	joinRoom(rid, code, source) {
 		check(rid, String);
 
 		if (!Meteor.userId()) {
@@ -14,12 +14,15 @@ Meteor.methods({
 
 		// TODO we should have a 'beforeJoinRoom' call back so external services can do their own validations
 		const user = Meteor.user();
+
 		if (room.tokenpass && user && user.services && user.services.tokenpass) {
 			const balances = RocketChat.updateUserTokenpassBalances(user);
 
 			if (!RocketChat.Tokenpass.validateAccess(room.tokenpass, balances)) {
 				throw new Meteor.Error('error-not-allowed', 'Token required', { method: 'joinRoom' });
 			}
+		} else if (source) {
+			// this is via link
 		} else {
 			if (!RocketChat.authz.canAccessRoom(room, Meteor.user())) {
 				throw new Meteor.Error('error-not-allowed', 'Not allowed', { method: 'joinRoom' });
