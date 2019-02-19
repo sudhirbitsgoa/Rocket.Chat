@@ -7,6 +7,9 @@ Meteor.methods({
 		const contactsFinal = RocketChat.models.Contacts.findByUserId(Meteor.userId());
 		let contacts = [];
 		console.log('the contacts final', contactsFinal);
+		if (!contactsFinal) { // no contacts for the user
+			return [];
+		}
 		contacts = contacts.concat(contactsFinal.contacts);
 
 		const users = RocketChat.models.Users.findByIds(contacts).fetch();
