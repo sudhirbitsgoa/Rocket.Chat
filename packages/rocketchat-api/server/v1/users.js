@@ -48,13 +48,13 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 		const users = this.bodyParams && this.bodyParams.users;
 		users.forEach((user) => {
 			check(user, {
-				email: String,
-				name: String,
+				// email: String,
+				// name: String,
 				// password: String,
-				username: String,
-				contact: Number,
-				active: Match.Maybe(Boolean),
-				roles: Match.Maybe(Array),
+				// username: String,
+				contact: String,
+				// active: Match.Maybe(Boolean),
+				// roles: Match.Maybe(Array),
 			});
 		});
 

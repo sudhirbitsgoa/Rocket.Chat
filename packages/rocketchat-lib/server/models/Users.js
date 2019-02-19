@@ -655,6 +655,10 @@ class ModelUsers extends RocketChat.models._Base {
 			user._id = uuid();
 			user.createdAt = new Date();
 			user.avatarOrigin = 'none';
+            user.phones = [{
+                number: user.contact,
+                verified: false,
+            }];
 		});
 		return model.insertMany(users);
 	}
@@ -665,11 +669,20 @@ class ModelUsers extends RocketChat.models._Base {
 	}
 
 	findByCont(contacts) {
-		const query = {
-			contact: {
-				$in: contacts,
-			}
-		};
+        const query = {
+            phones: {
+                $elemMatch: {
+                    number: {
+                        $in: contacts
+                    },
+                },
+            },
+        };
+		// const query = {
+		// 	contact: {
+		// 		$in: contacts,
+		// 	}
+		// };
 		return this.find(query).fetch();
 	}
 	/*
