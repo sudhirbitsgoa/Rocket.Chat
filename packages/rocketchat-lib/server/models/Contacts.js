@@ -58,5 +58,51 @@ class ModelContacts extends RocketChat.models._Base {
 				return model.insert(newCont);
 			});
 	}
+
+	addUsersToBlockContacts(userId, userIds) {
+		const model = this.model.rawCollection();
+        userIds = [].concat(userIds);
+
+        const query = {
+			'u._id': userId
+		};
+		const update = {
+			$addToSet: {
+				block_contacts: {
+					$each: userIds,
+				},
+			},
+		};
+		return model.findOne(query)
+			.then(cont => {
+				if (cont) {
+					return model.update(query, update);
+				}
+				let newCont = {
+					u: {
+						_id: userId
+					},
+					block_contacts: userIds
+				};
+				return model.insert(newCont);
+			});
+	}
+
+	removeBlockContacts(userId, userIds) {
+		const model = this.model.rawCollection();
+        userIds = [].concat(userIds);
+
+        const query = {
+			'u._id': userId
+		};
+		const update = {
+			$pull: {
+				block_contacts: {
+					$in: userIds,
+				},
+			},
+		};
+		return model.update(query, update);
+	}
 }
 RocketChat.models.Contacts = new ModelContacts('contacts', true);

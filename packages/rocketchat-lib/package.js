@@ -157,6 +157,8 @@ Package.onUse(function(api) {
 	api.addFiles('server/methods/approveUserToJoinRoom.js', 'server');
 	api.addFiles('server/methods/archiveRoom.js', 'server');
 	api.addFiles('server/methods/blockUser.js', 'server');
+	api.addFiles('server/methods/blockContact.js', 'server');
+	api.addFiles('server/methods/unblockContact.js', 'server');
 	api.addFiles('server/methods/checkRegistrationSecretURL.js', 'server');
 	api.addFiles('server/methods/checkUsernameAvailability.js', 'server');
 	api.addFiles('server/methods/cleanRoomHistory.js', 'server');
