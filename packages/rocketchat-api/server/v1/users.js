@@ -67,7 +67,10 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 		const fetchedUsers = RocketChat.models.Users.findByCont(contactIds);
 		const finalSyncContacts = [];
 		fetchedUsers.forEach((user) => {
-			contactsHash[user.contact] = 1;
+			const syncedContact = user.phones && user.phones[0] && user.phones[0].number;
+			if (syncedContact) {
+				contactsHash[syncedContact] = 1;
+			}
 		});
 		this.bodyParams.users.forEach((user) => {
 			user.username = user.contact.toString();
