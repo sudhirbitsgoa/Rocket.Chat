@@ -65,9 +65,12 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 			contactIds.push(user.contact);
 		});
 		const fetchedUsers = RocketChat.models.Users.findByCont(contactIds);
+		const userIdsToInsert = [];
 		const finalSyncContacts = [];
 		fetchedUsers.forEach((user) => {
+			contactsHash[user.contact] = 1;
 			const syncedContact = user.phones && user.phones[0] && user.phones[0].number;
+			userIdsToInsert.push(user._id);
 			if (syncedContact) {
 				contactsHash[syncedContact] = 1;
 			}
@@ -78,11 +81,15 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 				finalSyncContacts.push(user);
 			}
 		});
+		// finalSyncContacts means users not in rocket chat but on phone
+		// these users should not be in rocket chat
 		if (finalSyncContacts.length < 1) {
+			RocketChat.createContacts(this.userId, userIdsToInsert);
 			return RocketChat.API.v1.success({ sync: 'done' });
 		}
+		return RocketChat.API.v1.success({ sync: 'done' }); // this should go into then
 
-		return RocketChat.bulkSaveUser(finalSyncContacts)
+		/*return RocketChat.bulkSaveUser(finalSyncContacts)
 			.then((usersSyncd) => {
 				// console.log('the users synced %j', usersSyncd, this.userId);
 				const userIdsCreated = usersSyncd.insertedIds;
@@ -96,7 +103,7 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 			})
 			.catch((err) => {
 				console.log('the catch err %j', err);
-			});
+			});*/
 	},
 });
 

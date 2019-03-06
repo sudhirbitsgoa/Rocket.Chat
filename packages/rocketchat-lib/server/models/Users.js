@@ -21,7 +21,7 @@ class ModelUsers extends RocketChat.models._Base {
 
 	findOneByUsername(username, options) {
 		if (typeof username === 'string') {
-			username = new RegExp(`^${ username }$`, 'i');
+			// username = new RegExp(`^${ username }$`, 'i');
 		}
 
 		const query = { username };

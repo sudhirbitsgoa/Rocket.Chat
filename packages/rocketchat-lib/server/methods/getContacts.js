@@ -11,7 +11,7 @@ Meteor.methods({
 		}
 		contacts = contacts.concat(contactsFinal.contacts);
 		const blockContactsHash = {};
-		const blockContacts = contactsFinal.block_contacts;
+		const blockContacts = contactsFinal.block_contacts || [];
 		blockContacts.forEach(bc => {
 			blockContactsHash[bc] = 1;
 		});
