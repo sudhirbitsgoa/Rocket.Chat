@@ -58,7 +58,7 @@ class ModelSubscriptions extends RocketChat.models._Base {
 		const query =
 			{
 				'u._id': userId,
-				agreed: true
+				// agreed: true
 			};
 
 		return this.find(query, options);
