@@ -290,13 +290,9 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 		Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.username));
 		const loginToken = Accounts._generateStampedLoginToken();
 		Accounts._insertLoginToken(userId, loginToken);
-		const data = {};
-		const user = RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude });
-		data.authToken = loginToken.token;
-		data.me = user;
-		data.userId = user._id;
 		return RocketChat.API.v1.success({
-			data,
+			user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }),
+			authToken: loginToken.token
 		});
 	},
 });
