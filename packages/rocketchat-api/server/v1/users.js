@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import Busboy from 'busboy';
+const phoneUtil = require('google-libphonenumber').PhoneNumberUtil.getInstance();
 
 RocketChat.API.v1.addRoute('users.create', { authRequired: true }, {
 	post() {
@@ -48,22 +49,35 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 		const users = this.bodyParams && this.bodyParams.users;
 		users.forEach((user) => {
 			check(user, {
-				// email: String,
-				// name: String,
-				// password: String,
-				// username: String,
 				contact: String,
-				// active: Match.Maybe(Boolean),
-				// roles: Match.Maybe(Array),
 			});
 		});
 
 		// find users who already exists with the contact
+		const user = RocketChat.models.Users.findOneById(this.userId);
+		const userNumber = user.phones && user.phones[0].number;
+		const userExt = userNumber.substring(0, 3);
 		const contactIds = [];
 		const contactsHash = {};
 		this.bodyParams.users.forEach((user) => {
-			contactIds.push(user.contact);
+            let contact = user.contact;
+            let number;
+            try {
+                number = phoneUtil.parse(contact);
+            } catch (error) {
+                contact = contact%10e9;
+			    if (!isNaN(contact)) {
+			        number = phoneUtil.parse(contact);
+			        contact = `${userExt}${contact}`;
+			    }
+            }
+            if (number && phoneUtil.isValidNumber(number)) {
+				contactIds.push(user.contact);
+            };
 		});
+		if (contactIds.length < 1) {
+			return RocketChat.API.v1.success({ sync: 'done' }); // this should go into then
+		}
 		const fetchedUsers = RocketChat.models.Users.findByCont(contactIds);
 		const userIdsToInsert = [];
 		const finalSyncContacts = [];
