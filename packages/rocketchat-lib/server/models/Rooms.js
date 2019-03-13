@@ -5,7 +5,7 @@ class ModelRooms extends RocketChat.models._Base {
 	constructor(...args) {
 		super(...args);
 
-		this.tryEnsureIndex({ name: 1 }, { unique: 1, sparse: 1 });
+		this.tryEnsureIndex({ name: 1 }, { sparse: 1 });
 		this.tryEnsureIndex({ default: 1 });
 		this.tryEnsureIndex({ t: 1 });
 		this.tryEnsureIndex({ 'u._id': 1 });

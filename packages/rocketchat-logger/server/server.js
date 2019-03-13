@@ -6,11 +6,11 @@ import s from 'underscore.string';
 LoggerManager = new class extends EventEmitter { // eslint-disable-line no-undef
 	constructor() {
 		super();
-		this.enabled = false;
+		this.enabled = true;
 		this.loggers = {};
 		this.queue = [];
-		this.showPackage = false;
-		this.showFileAndLine = false;
+		this.showPackage = true;
+		this.showFileAndLine = true;
 		this.logLevel = 0;
 	}
 	register(logger) {
