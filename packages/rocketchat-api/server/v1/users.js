@@ -67,8 +67,8 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
             } catch (error) {
                 contact = contact%10e9;
 			    if (!isNaN(contact)) {
-			        number = phoneUtil.parse(contact);
 			        contact = `${userExt}${contact}`;
+			        number = phoneUtil.parse(contact);
 			    }
             }
             if (number && phoneUtil.isValidNumber(number)) {
@@ -245,8 +245,19 @@ RocketChat.API.v1.addRoute('users.register', { authRequired: false }, {
 			contact: String
 		}));
 
-		if(!this.bodyParams.name) {
-			this.bodyParams.name = this.bodyParams.contact;
+		let contact = this.bodyParams.contact;
+		let number;
+		try {
+        	number = phoneUtil.parse(contact);
+        } catch (error) {
+        	throw new Meteor.Error('error-not-allowed', 'contact number invalid', {
+				method: 'register',
+			});
+            return;
+        }
+
+        if(!this.bodyParams.name) {
+			this.bodyParams.name = contact;
 		}
 
 		// Register the user
