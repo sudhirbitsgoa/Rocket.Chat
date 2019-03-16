@@ -73,6 +73,7 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
             }
             if (number && phoneUtil.isValidNumber(number)) {
 				contactIds.push(user.contact);
+				user.contact = contact;
             };
 		});
 		if (contactIds.length < 1) {
@@ -82,7 +83,7 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 		const userIdsToInsert = [];
 		const finalSyncContacts = [];
 		fetchedUsers.forEach((user) => {
-			contactsHash[user.contact] = 1;
+			// contactsHash[user.contact] = 1;
 			const syncedContact = user.phones && user.phones[0] && user.phones[0].number;
 			userIdsToInsert.push(user._id);
 			if (syncedContact) {
@@ -95,29 +96,13 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 				finalSyncContacts.push(user);
 			}
 		});
-		// finalSyncContacts means users not in rocket chat but on phone
-		// these users should not be in rocket chat
-		if (finalSyncContacts.length < 1) {
+		// finalSyncContacts means users in rocket chat but on phone
+		// these users should be in rocket chat cotacts
+		if (finalSyncContacts.length > 0) {
 			RocketChat.createContacts(this.userId, userIdsToInsert);
 			return RocketChat.API.v1.success({ sync: 'done' });
 		}
 		return RocketChat.API.v1.success({ sync: 'done' }); // this should go into then
-
-		/*return RocketChat.bulkSaveUser(finalSyncContacts)
-			.then((usersSyncd) => {
-				// console.log('the users synced %j', usersSyncd, this.userId);
-				const userIdsCreated = usersSyncd.insertedIds;
-				// console.log('the insert ids', userIdsCreated);
-				RocketChat.createContacts(this.userId, userIdsCreated);
-				return RocketChat.API.v1.success({ sync: 'done' }); // this should go into then
-				// but not sure whats wrong for now will be here TO_DO
-			})
-			.then((syncdContacts) => {
-				console.log('the contacts are sysnc', syncdContacts);
-			})
-			.catch((err) => {
-				console.log('the catch err %j', err);
-			});*/
 	},
 });
 
