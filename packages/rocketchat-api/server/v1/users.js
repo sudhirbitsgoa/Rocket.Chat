@@ -316,8 +316,12 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 		const loginToken = Accounts._generateStampedLoginToken();
 		Accounts._insertLoginToken(userId, loginToken);
 		return RocketChat.API.v1.success({
-			user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }),
-			authToken: loginToken.token
+			status: 'success',
+			data: {
+				authToken: loginToken.token,
+				userId: userId,
+				me: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude })
+			}
 		});
 	},
 });
