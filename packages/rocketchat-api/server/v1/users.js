@@ -72,7 +72,7 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 			    }
             }
             if (number && phoneUtil.isValidNumber(number)) {
-				contactIds.push(user.contact);
+				contactIds.push(contact);
 				user.contact = contact;
             };
 		});
