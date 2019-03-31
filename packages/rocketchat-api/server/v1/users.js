@@ -297,7 +297,7 @@ RocketChat.API.v1.addRoute('users.verifyToken', { authRequired: false }, {
 		RocketChat.models.Users.setContactVerified(invitedUser._id, this.bodyParams.contact);
 
 		// Now set their username
-		Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.username));
+		// Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.username));
 		const loginToken = Accounts._generateStampedLoginToken();
 		Accounts._insertLoginToken(userId, loginToken);
 		return RocketChat.API.v1.success({
