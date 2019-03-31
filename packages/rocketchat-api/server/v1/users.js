@@ -84,24 +84,21 @@ RocketChat.API.v1.addRoute('users.sync', { authRequired: true }, {
 		const finalSyncContacts = [];
 		fetchedUsers.forEach((user) => {
 			// contactsHash[user.contact] = 1;
-			const syncedContact = user.phones && user.phones[0] && user.phones[0].number;
+			// const syncedContact = user.phones && user.phones[0] && user.phones[0].number;
 			userIdsToInsert.push(user._id);
-			if (syncedContact) {
-				contactsHash[syncedContact] = 1;
-			}
+			// if (syncedContact) {
+			// 	contactsHash[syncedContact] = 1;
+			// }
 		});
-		this.bodyParams.users.forEach((user) => {
-			user.username = user.contact.toString();
-			if (!(user.contact in contactsHash)) {
-				finalSyncContacts.push(user);
-			}
-		});
+		// this.bodyParams.users.forEach((user) => {
+		// 	// user.username = user.contact.toString();
+		// 	if (!(user.contact in contactsHash)) {
+		// 		finalSyncContacts.push(user);
+		// 	}
+		// });
+		RocketChat.createContacts(this.userId, userIdsToInsert);
 		// finalSyncContacts means users in rocket chat but on phone
 		// these users should be in rocket chat cotacts
-		if (finalSyncContacts.length > 0) {
-			RocketChat.createContacts(this.userId, userIdsToInsert);
-			return RocketChat.API.v1.success({ sync: 'done' });
-		}
 		return RocketChat.API.v1.success({ sync: 'done' }); // this should go into then
 	},
 });

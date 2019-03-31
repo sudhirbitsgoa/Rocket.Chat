@@ -37,12 +37,18 @@ class ModelContacts extends RocketChat.models._Base {
         const query = {
 			'u._id': userId
 		};
-		const update = {
-			$addToSet: {
-				contacts: {
-					$each: userIds,
-				},
+		// const update = {
+		// 	$addToSet: {
+		// 		contacts: {
+		// 			$each: userIds,
+		// 		},
+		// 	},
+		// };
+		let update = {
+			u: {
+				_id: userId
 			},
+			contacts: userIds
 		};
 		return model.findOne(query)
 			.then(cont => {
