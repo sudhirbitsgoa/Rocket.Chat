@@ -23,8 +23,8 @@ Package.onUse(function(api) {
 
 	api.addFiles('client/routes.js', 'client');
 
-	api.addFiles('client/reset-password/resetPassword.html', 'client');
-	api.addFiles('client/reset-password/resetPassword.js', 'client');
+	// api.addFiles('client/reset-password/resetPassword.html', 'client');
+	// api.addFiles('client/reset-password/resetPassword.js', 'client');
 
 	api.addFiles('client/login/footer.html', 'client');
 	api.addFiles('client/login/form.html', 'client');

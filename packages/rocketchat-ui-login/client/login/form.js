@@ -2,6 +2,7 @@
 import _ from 'underscore';
 import s from 'underscore.string';
 import toastr from 'toastr';
+import { HTTP } from 'meteor/http';
 
 Template.loginForm.helpers({
 	userName() {
@@ -28,8 +29,10 @@ Template.loginForm.helpers({
 		switch (Template.instance().state.get()) {
 			case 'register':
 				return t('Register');
-			case 'login':
-				return t('Login');
+			case 'otplogin':
+				return 'Send otp';
+			case 'verifyotp':
+				return 'Verify OTP';
 			case 'email-verification':
 				return t('Send_confirmation_email');
 			case 'forgot-password':
@@ -54,6 +57,9 @@ Template.loginForm.helpers({
 	},
 	emailOrUsernamePlaceholder() {
 		return RocketChat.settings.get('Accounts_EmailOrUsernamePlaceholder') || t('Email_or_username');
+	},
+	phoneNumberPlaceHolder() {
+		return 'Enter phone number';
 	},
 	passwordPlaceholder() {
 		return RocketChat.settings.get('Accounts_PasswordPlaceholder') || t('Password');
@@ -82,69 +88,64 @@ Template.loginForm.events({
 					instance.loading.set(false);
 					RocketChat.callbacks.run('userConfirmationEmailRequested');
 					toastr.success(t('We_have_sent_registration_email'));
-					return instance.state.set('login');
+					return instance.state.set('otplogin');
 				});
 				return;
 			}
-			if (state === 'forgot-password') {
-				Meteor.call('sendForgotPasswordEmail', s.trim(formData.email), (err) => {
-					if (err) {
-						handleError(err);
-						return instance.state.set('login');
-					} else {
-						instance.loading.set(false);
-						RocketChat.callbacks.run('userForgotPasswordEmailRequested');
-						toastr.success(t('If_this_email_is_registered'));
-						return instance.state.set('login');
+			if (state === 'otplogin') { // for otp login should send token
+				// need to add invalid phone number validation
+				HTTP.post('/api/v1/users.register', {
+					data: {
+						contact: formData.phoneNumber
+					},
+					headers: {
+						'Content-Type': 'application/json; charset=utf-8'
+					},
+				}, (err, resp) => {
+					debugger;
+					const error = err && err.response;
+					if (error && error.statusCode !== 200) {
+						toastr.error('Check Phone number');
 					}
-				});
-				return;
-			}
-			if (state === 'register') {
-				formData.secretURL = FlowRouter.getParam('hash');
-				return Meteor.call('registerUser', formData, function(error) {
 					instance.loading.set(false);
-					if (error != null) {
-						if (error.reason === 'Email already exists.') {
-							toastr.error(t('Email_already_exists'));
-						} else {
-							handleError(error);
-						}
-						return;
-					}
-					RocketChat.callbacks.run('userRegistered');
-					return Meteor.loginWithPassword(s.trim(formData.email), formData.pass, function(error) {
-						if (error && error.error === 'error-invalid-email') {
-							toastr.success(t('We_have_sent_registration_email'));
-							return instance.state.set('login');
-						} else if (error && error.error === 'error-user-is-not-activated') {
-							return instance.state.set('wait-activation');
-						} else {
-							Session.set('forceLogin', false);
-						}
-					});
+					return instance.state.set('verifyotp');
 				});
 			} else {
-				let loginMethod = 'loginWithPassword';
+				let loginMethod = 'loginWithToken';
 				if (RocketChat.settings.get('LDAP_Enable')) {
 					loginMethod = 'loginWithLDAP';
 				}
 				if (RocketChat.settings.get('CROWD_Enable')) {
 					loginMethod = 'loginWithCrowd';
 				}
-				return Meteor[loginMethod](s.trim(formData.emailOrUsername), formData.pass, function(error) {
-					instance.loading.set(false);
-					if (error != null) {
-						if (error.error === 'no-valid-email') {
-							instance.state.set('email-verification');
-						} else if (error.error === 'error-user-is-not-activated') {
-							toastr.error(t('Wait_activation_warning'));
-						} else {
-							toastr.error(t('User_not_found_or_incorrect_password'));
-						}
-						return;
+				HTTP.post('/api/v1/users.verifyToken', {
+					data: {
+						contact: formData.phoneNumber,
+						token: formData.otp
+					},
+					headers: {
+						'Content-Type': 'application/json; charset=utf-8'
 					}
-					Session.set('forceLogin', false);
+				}, (err, resp) => {
+					console.log(resp);
+					debugger;
+					if (err) {
+						return toastr.error('Invalid otp');
+					}
+					return Meteor[loginMethod](resp.data.data.authToken, function(error) {
+						instance.loading.set(false);
+						if (error != null) {
+							if (error.error === 'no-valid-email') {
+								instance.state.set('email-verification');
+							} else if (error.error === 'error-user-is-not-activated') {
+								toastr.error(t('Wait_activation_warning'));
+							} else {
+								toastr.error(t('User_not_found_or_incorrect_password'));
+							}
+							return;
+						}
+						Session.set('forceLogin', false);
+					});
 				});
 			}
 		}
@@ -197,7 +198,7 @@ Template.loginForm.onCreated(function() {
 	} else if (Session.get('loginDefaultState')) {
 		this.state = new ReactiveVar(Session.get('loginDefaultState'));
 	} else {
-		this.state = new ReactiveVar('login');
+		this.state = new ReactiveVar('otplogin');
 	}
 	this.validSecretURL = new ReactiveVar(false);
 	const validateCustomFields = function(formObj, validationObj) {
@@ -226,6 +227,7 @@ Template.loginForm.onCreated(function() {
 		}
 	};
 	this.validate = function() {
+		// TO_DO Add validation to phone number
 		const formData = $('#login-card').serializeArray();
 		const formObj = {};
 		const validationObj = {};
@@ -233,33 +235,18 @@ Template.loginForm.onCreated(function() {
 			formObj[field.name] = field.value;
 		});
 		const state = instance.state.get();
-		if (state !== 'login') {
-			if (!(formObj.email && /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]+\b/i.test(formObj.email))) {
-				validationObj.email = t('Invalid_email');
+
+		if (state === 'otplogin') {
+			if (!formObj.phoneNumber) {
+				validationObj.phoneNumber = 'Invalid contact';
 			}
 		}
-		if (state === 'login') {
-			if (!formObj.emailOrUsername) {
-				validationObj.emailOrUsername = t('Invalid_email');
+		if (state === 'verifyotp') {
+			if (!formObj.otp) {
+				validationObj.otp = 'Invalid otp';
 			}
 		}
-		if (state !== 'forgot-password') {
-			if (!formObj.pass) {
-				validationObj.pass = t('Invalid_pass');
-			}
-		}
-		if (state === 'register') {
-			if (RocketChat.settings.get('Accounts_RequireNameForSignUp') && !formObj.name) {
-				validationObj.name = t('Invalid_name');
-			}
-			if (RocketChat.settings.get('Accounts_RequirePasswordConfirmation') && formObj['confirm-pass'] !== formObj.pass) {
-				validationObj['confirm-pass'] = t('Invalid_confirm_pass');
-			}
-			if (RocketChat.settings.get('Accounts_ManuallyApproveNewUsers') && !formObj.reason) {
-				validationObj.reason = t('Invalid_reason');
-			}
-			validateCustomFields(formObj, validationObj);
-		}
+
 		$('#login-card h2').removeClass('error');
 		$('#login-card input.error, #login-card select.error').removeClass('error');
 		$('#login-card .input-error').text('');
