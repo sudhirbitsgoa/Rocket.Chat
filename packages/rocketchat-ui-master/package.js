@@ -17,7 +17,7 @@ Package.onUse(function(api) {
 		'templating',
 		'reactive-var',
 		'rocketchat:lib',
-		'meteorhacks:inject-initial',
+		'meteorhacks:inject-initial'
 	]);
 
 	api.addFiles('client/main.html', 'client');

@@ -3,6 +3,9 @@ import _ from 'underscore';
 import s from 'underscore.string';
 import toastr from 'toastr';
 import { HTTP } from 'meteor/http';
+import intlTelInput from 'intl-tel-input';
+debugger;
+import 'intl-tel-input/build/css/intlTelInput.min.css';
 
 Template.loginForm.helpers({
 	userName() {
@@ -21,6 +24,10 @@ Template.loginForm.helpers({
 	},
 	state(...state) {
 		return state.indexOf(Template.instance().state.get()) > -1;
+	},
+	contact() {
+		debugger;
+		return Template.instance.contact;
 	},
 	btnLoginSave() {
 		if (Template.instance().loading.get()) {
@@ -82,6 +89,7 @@ Template.loginForm.events({
 		instance.loading.set(true);
 		const formData = instance.validate();
 		const state = instance.state.get();
+		debugger;
 		if (formData) {
 			if (state === 'email-verification') {
 				Meteor.call('sendConfirmationEmail', s.trim(formData.email), () => {
@@ -96,18 +104,19 @@ Template.loginForm.events({
 				// need to add invalid phone number validation
 				HTTP.post('/api/v1/users.register', {
 					data: {
-						contact: formData.phoneNumber
+						contact: Template.instance.iti.getNumber()
 					},
 					headers: {
 						'Content-Type': 'application/json; charset=utf-8'
 					},
 				}, (err, resp) => {
-					debugger;
 					const error = err && err.response;
 					if (error && error.statusCode !== 200) {
 						toastr.error('Check Phone number');
 					}
 					instance.loading.set(false);
+					debugger;
+					Template.instance.contact = Template.instance.iti.getNumber();
 					return instance.state.set('verifyotp');
 				});
 			} else {
@@ -120,7 +129,7 @@ Template.loginForm.events({
 				}
 				HTTP.post('/api/v1/users.verifyToken', {
 					data: {
-						contact: formData.phoneNumber,
+						contact: Template.instance.iti.getNumber(),
 						token: formData.otp
 					},
 					headers: {
@@ -269,6 +278,19 @@ Template.loginForm.onCreated(function() {
 });
 
 Template.loginForm.onRendered(function() {
+	const telInput = document.querySelector("#phoneNumber");
+	Template.instance.iti = intlTelInput(telInput, {
+        separateDialCode: true,
+        utilsScript: "//cdnjs.cloudflare.com/ajax/libs/intl-tel-input/12.3.0/js/utils.js",
+        autoPlaceholder: true,
+        preferredCountries: [ 'in', 'au','ca','fr','de','uk','mx','nz','no','ru','es','se','ch','us','gb'],
+        initialCountry: "in",
+        // autoFormat:false,
+        // preventInvalidNumbers:true,
+        // nationalMode:false
+    });
+    debugger
+  	// window.intlTelInputGlobals(input);
 	Session.set('loginDefaultState');
 	return Tracker.autorun(() => {
 		RocketChat.callbacks.run('loginPageStateChange', this.state.get());

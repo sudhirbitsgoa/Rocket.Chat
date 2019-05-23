@@ -10,6 +10,10 @@ Package.describe({
 	documentation: 'README.md',
 });
 
+Npm.depends({
+    'intl-tel-input': '15.0.2'
+});
+
 Package.onUse(function(api) {
 	api.use([
 		'ecmascript',
@@ -44,4 +48,16 @@ Package.onUse(function(api) {
 	api.addFiles('client/login/social.js', 'client');
 	api.addFiles('client/username/layout.js', 'client');
 	api.addFiles('client/username/username.js', 'client');
+
+	api.addFiles([
+        // Plugin files
+        '.npm/package/node_modules/intl-tel-input/build/css/intlTelInput.css',
+        '.npm/package/node_modules/intl-tel-input/build/js/intlTelInput.min.js'
+    ], 'client');
+
+	api.addAssets([
+        '.npm/package/node_modules/intl-tel-input/build/img/flags.png',
+        '.npm/package/node_modules/intl-tel-input/build/img/flags@2x.png',
+        '.npm/package/node_modules/intl-tel-input/build/js/utils.js'
+    ], 'client');
 });
