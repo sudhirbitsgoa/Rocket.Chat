@@ -214,7 +214,7 @@ RocketChat.API.v1.addRoute('users.list', { authRequired: true }, {
 	},
 });
 
-RocketChat.API.v1.addRoute('users.register', { authRequired: false }, {
+RocketChat.API.v1.addRoute('users.register.phone', { authRequired: false }, {
 	post() {
 		if (this.userId) {
 			return RocketChat.API.v1.failure('Logged in users can not register again.');
@@ -249,6 +249,32 @@ RocketChat.API.v1.addRoute('users.register', { authRequired: false }, {
 		// Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.name));
 		return RocketChat.API.v1.success({message: 'An otp has been sent. Verify otp to login.'});
 		// return RocketChat.API.v1.success({ user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }) });
+	},
+});
+
+RocketChat.API.v1.addRoute('users.register', { authRequired: false }, {
+	post() {
+		if (this.userId) {
+			return RocketChat.API.v1.failure('Logged in users can not register again.');
+		}
+
+		// We set their username here, so require it
+		// The `registerUser` checks for the other requirements
+		check(this.bodyParams, Match.ObjectIncluding({
+			username: String,
+		}));
+
+		if (!RocketChat.checkUsernameAvailability(this.bodyParams.username)) {
+			return RocketChat.API.v1.failure('Username is already in use');
+		}
+
+		// Register the user
+		const userId = Meteor.call('registerUser', this.bodyParams);
+
+		// Now set their username
+		Meteor.runAsUser(userId, () => Meteor.call('setUsername', this.bodyParams.username));
+
+		return RocketChat.API.v1.success({ user: RocketChat.models.Users.findOneById(userId, { fields: RocketChat.API.v1.defaultFieldsToExclude }) });
 	},
 });
 

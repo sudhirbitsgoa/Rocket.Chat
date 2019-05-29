@@ -102,7 +102,7 @@ Template.loginForm.events({
 			}
 			if (state === 'otplogin') { // for otp login should send token
 				// need to add invalid phone number validation
-				HTTP.post('/api/v1/users.register', {
+				HTTP.post('/api/v1/users.register.phone', {
 					data: {
 						contact: Template.instance.iti.getNumber()
 					},
