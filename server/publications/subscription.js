@@ -45,7 +45,7 @@ Meteor.methods({
 		const options = { fields };
 
 		const records = RocketChat.models.Subscriptions.findByUserId(Meteor.userId(), options).fetch();
-
+		console.log('the records', records);
 		if (updatedAt instanceof Date) {
 			return {
 				update: records.filter(function(record) {

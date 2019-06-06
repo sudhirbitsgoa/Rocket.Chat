@@ -278,18 +278,19 @@ Template.loginForm.onCreated(function() {
 });
 
 Template.loginForm.onRendered(function() {
-	const telInput = document.querySelector("#phoneNumber");
-	Template.instance.iti = intlTelInput(telInput, {
-        separateDialCode: true,
-        utilsScript: "//cdnjs.cloudflare.com/ajax/libs/intl-tel-input/12.3.0/js/utils.js",
-        autoPlaceholder: true,
-        preferredCountries: [ 'in', 'au','ca','fr','de','uk','mx','nz','no','ru','es','se','ch','us','gb'],
-        initialCountry: "in",
-        // autoFormat:false,
-        // preventInvalidNumbers:true,
-        // nationalMode:false
-    });
-    debugger
+	setTimeout(() => {
+		const telInput = document.querySelector("#phoneNumber");
+		Template.instance.iti = intlTelInput(telInput, {
+	        separateDialCode: true,
+	        utilsScript: "//cdnjs.cloudflare.com/ajax/libs/intl-tel-input/12.3.0/js/utils.js",
+	        autoPlaceholder: true,
+	        preferredCountries: [ 'in', 'au','ca','fr','de','uk','mx','nz','no','ru','es','se','ch','us','gb'],
+	        initialCountry: "in",
+	        // autoFormat:false,
+	        // preventInvalidNumbers:true,
+	        // nationalMode:false
+	    });
+	}, 300);
   	// window.intlTelInputGlobals(input);
 	Session.set('loginDefaultState');
 	return Tracker.autorun(() => {

@@ -283,6 +283,27 @@ class ModelSubscriptions extends RocketChat.models._Base {
 		return this.update(query, update);
 	}
 
+	setAsDeliveredByRoomIdAndUserId(roomId, userId) {
+		const query = {
+			rid: roomId,
+			'u._id': userId,
+		};
+
+		const update = {
+			$set: {
+				open: true,
+				alert: false,
+				undelivered: 0,
+				userMentions: 0,
+				groupMentions: 0,
+				lsync: new Date, // this is last sync for this subscription
+			},
+		};
+
+		return this.update(query, update);
+	}
+
+
 	setAsReadByRoomIdAndUserId(roomId, userId) {
 		const query = {
 			rid: roomId,

@@ -811,8 +811,44 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 		});
 	}
 
+	setAsDelivered(rid, until) {
+		return this.update({
+			rid,
+			undelivered: true,
+			ts: { $lt: until },
+		}, {
+			$unset: {
+				undelivered: 1,
+			},
+		}, {
+			multi: true,
+		});
+	}
+
+	setAsDeliveredById(_id) {
+		return this.update({
+			_id,
+		}, {
+			$unset: {
+				undelivered: 1,
+			},
+		});
+	}
+
+	incDeliveredCount(_id, userId) {
+		return this.update({
+			_id,
+		}, {
+			$inc: {
+				deliveredcount: 1,
+            },
+            $addToSet: {
+                deliveredTo: { _id: userId },
+            }
+		});
+	}
+
 	incViewedCount(_id, userId) {
-		console.log('to update the viewed count');
 		return this.update({
 			_id,
 		}, {
@@ -828,6 +864,23 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 	findUnreadMessagesByRoomAndDate(rid, after) {
 		const query = {
 			unread: true,
+			rid,
+		};
+
+		if (after) {
+			query.ts = { $gt: after };
+		}
+
+		return this.find(query, {
+			fields: {
+				_id: 1,
+			},
+		});
+	}
+
+	findUnDeliveredMessagesByRoomAndDate(rid, after) {
+		const query = {
+			undelivered: true,
 			rid,
 		};
 
