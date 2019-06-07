@@ -207,6 +207,7 @@ Template.loginForm.onCreated(function() {
 	} else if (Session.get('loginDefaultState')) {
 		this.state = new ReactiveVar(Session.get('loginDefaultState'));
 	} else {
+		debugger
 		this.state = new ReactiveVar('otplogin');
 	}
 	this.validSecretURL = new ReactiveVar(false);
@@ -278,25 +279,27 @@ Template.loginForm.onCreated(function() {
 });
 
 Template.loginForm.onRendered(function() {
-	setTimeout(() => {
-		const telInput = document.querySelector("#phoneNumber");
-		Template.instance.iti = intlTelInput(telInput, {
-	        separateDialCode: true,
-	        utilsScript: "//cdnjs.cloudflare.com/ajax/libs/intl-tel-input/12.3.0/js/utils.js",
-	        autoPlaceholder: true,
-	        preferredCountries: [ 'in', 'au','ca','fr','de','uk','mx','nz','no','ru','es','se','ch','us','gb'],
-	        initialCountry: "in",
-	        // autoFormat:false,
-	        // preventInvalidNumbers:true,
-	        // nationalMode:false
-	    });
-	}, 300);
+	debugger;
+	const telInput = $('#phoneNumber')[0];
+	if (Template.instance.iti) {
+		return
+	}
+	Template.instance.iti = intlTelInput(telInput, {
+        separateDialCode: true,
+        utilsScript: "//cdnjs.cloudflare.com/ajax/libs/intl-tel-input/12.3.0/js/utils.js",
+        autoPlaceholder: true,
+        preferredCountries: [ 'in', 'au','ca','fr','de','uk','mx','nz','no','ru','es','se','ch','us','gb'],
+        initialCountry: "in",
+        // autoFormat:false,
+        // preventInvalidNumbers:true,
+        // nationalMode:false
+    });
   	// window.intlTelInputGlobals(input);
 	Session.set('loginDefaultState');
 	return Tracker.autorun(() => {
 		RocketChat.callbacks.run('loginPageStateChange', this.state.get());
 		switch (this.state.get()) {
-			case 'login':
+			case 'otplogin':
 			case 'forgot-password':
 			case 'email-verification':
 				return Meteor.defer(function() {

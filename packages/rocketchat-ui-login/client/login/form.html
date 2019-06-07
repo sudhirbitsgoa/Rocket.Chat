@@ -13,47 +13,45 @@
 				</header>
 			{{else}}
 				{{> loginServices }}
-				{{#if showFormLogin}}
-					<div class="fields">
-						{{#if state 'otplogin'}}
-							<div class="rc-input">
-								<label class="rc-input__label" for="phoneNumber">
-									<div class="rc-input__wrapper">
-										<input name="phoneNumber" id="phoneNumber" type="tel" class="rc-input__element"
-											autocapitalize="off" autocorrect="off"
-											placeholder="{{phoneNumberPlaceHolder}}" autofocus>
-										<div class="input-error"></div>
-									</div>
-								</label>
-							</div>
-						{{/if}}
-						{{#if state 'verifyotp'}}
-							<div class="rc-input">
-								<label class="rc-input__label" for="phoneNumber">
-									<div class="rc-input__wrapper">
-										<input name="phoneNumber" id="phoneNumber" type="text" class="rc-input__element" value="{{contact}}"
-											autocapitalize="off" autocorrect="off"
-											readonly autofocus>
-										<div class="input-error"></div>
-									</div>
-								</label>
-							</div>
-							<div class="rc-input">
-								<label class="rc-input__label" for="otp">
-									<div class="rc-input__wrapper">
-										<input name="otp" id="otp" type="text" class="rc-input__element"
-											autocapitalize="off" autocorrect="off"
-											placeholder="OTP" autofocus>
-										<div class="input-error"></div>
-									</div>
-								</label>
-							</div>
-						{{/if}}
-					</div>
-						<div class="submit">
-							<button class='rc-button rc-button--primary login'><span>{{btnLoginSave}}</span></button>
+				<div class="fields">
+					{{#if state 'otplogin'}}
+						<div class="rc-input">
+							<label class="rc-input__label" for="phoneNumber">
+								<div class="rc-input__wrapper">
+									<input name="phoneNumber" id="phoneNumber" type="tel" class="rc-input__element"
+										autocapitalize="off" autocorrect="off"
+										placeholder="{{phoneNumberPlaceHolder}}" autofocus>
+									<div class="input-error"></div>
+								</div>
+							</label>
 						</div>
-				{{/if}}
+					{{/if}}
+					{{#if state 'verifyotp'}}
+						<div class="rc-input">
+							<label class="rc-input__label" for="phoneNumber">
+								<div class="rc-input__wrapper">
+									<input name="phoneNumber" id="phoneNumber" type="text" class="rc-input__element" value="{{contact}}"
+										autocapitalize="off" autocorrect="off"
+										readonly autofocus>
+									<div class="input-error"></div>
+								</div>
+							</label>
+						</div>
+						<div class="rc-input">
+							<label class="rc-input__label" for="otp">
+								<div class="rc-input__wrapper">
+									<input name="otp" id="otp" type="text" class="rc-input__element"
+										autocapitalize="off" autocorrect="off"
+										placeholder="OTP" autofocus>
+									<div class="input-error"></div>
+								</div>
+							</label>
+						</div>
+					{{/if}}
+				</div>
+				<div class="submit">
+					<button class='rc-button rc-button--primary login'><span>{{btnLoginSave}}</span></button>
+				</div>
 			{{/if}}
 		</form>
 		<div class='login-terms'>
