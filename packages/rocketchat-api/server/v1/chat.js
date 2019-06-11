@@ -161,6 +161,26 @@ RocketChat.API.v1.addRoute('chat.sendMessage', { authRequired: true }, {
 	},
 });
 
+RocketChat.API.v1.addRoute('chat.forwardMessage', { authRequired: true }, {
+	post() {
+		if (!this.bodyParams.messageId || !this.bodyParams.messageId.trim()) {
+			throw new Meteor.Error('error-messageid-param-not-provided', 'The required "messageId" param is required.');
+		}
+
+		const msg = RocketChat.models.Messages.findOneById(this.bodyParams.messageId);
+
+		if (!msg) {
+			throw new Meteor.Error('error-message-not-found', 'The provided "messageId" does not match any existing message.');
+		}
+
+		Meteor.runAsUser(this.userId, () => Meteor.call('forwardMessage', {
+			messageId: msg._id,
+		}));
+
+		return RocketChat.API.v1.success();
+	},
+});
+
 RocketChat.API.v1.addRoute('chat.starMessage', { authRequired: true }, {
 	post() {
 		if (!this.bodyParams.messageId || !this.bodyParams.messageId.trim()) {
