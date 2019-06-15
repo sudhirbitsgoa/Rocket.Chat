@@ -8,7 +8,7 @@ RocketChat.callbacks.add('afterSaveMessage', (message, room) => {
 	}
 
 	// set subscription as read right after message was sent
-	RocketChat.models.Subscriptions.setAsReadByRoomIdAndUserId(room._id, message.u._id);
+	RocketChat.models.Subscriptions.setAsDeliveredByRoomIdAndUserId(room._id, message.u._id);
 
 	// mark message as read as well
 	DeliveryReceipts.markMessageAsDeliveredBySender(message, room._id, message.u._id);
