@@ -36,7 +36,6 @@
     background-position: 100% 0;
   }
 }
-
 .rc-input__element#phoneNumber,.rc-input__element#otp{
   color: #ffffff;
 }
@@ -124,7 +123,4 @@ color: #fff;
 input[type="text"].rc-input__element#message-search{
   color: #444;
 }
-.message-actions { 
-  top: 8px;
-  right: 1.4rem;  
-}
+.message-actions {top: 8px;right: 1.4rem;}
