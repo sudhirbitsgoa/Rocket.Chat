@@ -40,6 +40,7 @@ const majorColors = {
 	'error-color': '#BC2031',
 	'selection-color': '#02ACEC',
 	'attention-color': '#9C27B0',
+	'bg-transparant-color':'transparant',
 };
 
 // Minor colours implement major colours by default, but can be overruled

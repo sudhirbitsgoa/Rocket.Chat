@@ -4653,6 +4653,9 @@ body:not(.is-cordova) {
 	align-items: center;
 	flex-flow: row nowrap;
 
+	align-items: initial; /* Newly added */
+
+
 	& .wrapper {
 		position: relative;
 		z-index: 10;
@@ -4661,6 +4664,14 @@ body:not(.is-cordova) {
 		padding: 20px;
 
 		text-align: center;
+/* Newly added styles for ChatuRai app */
+		/* background-color: #00ffff; */
+		background-image:url('/images/bg_theme.png');
+		/* background: url(images/bg_theme.png) no-repeat center center; */
+		background-repeat:no-repeat;
+		background-size:cover;
+		background-position:center center;
+		/* Newly added styles for ChatuRai app */
 	}
 
 	& .logo {
