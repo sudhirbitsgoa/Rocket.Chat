@@ -35,13 +35,32 @@ export async function sendSinglePush({ room, message, userId, receiverUsername, 
 	if (RocketChat.settings.get('Push_show_username_room')) {
 		username = RocketChat.settings.get('UI_Use_Real_Name') === true ? senderName : senderUsername;
 	}
-
+	console.log('send push notification', {
+		roomId: message.rid,
+		payload: {
+			host: Meteor.absoluteUrl(),
+			rid: message.rid,
+			sender: message.u,
+			tag: message.tag || 'text',
+			type: room.t,
+			name: room.name,
+		},
+		roomName: RocketChat.settings.get('Push_show_username_room') && room.t !== 'd' ? `#${ RocketChat.roomTypes.getRoomName(room.t, room) }` : '',
+		username,
+		message: RocketChat.settings.get('Push_show_message') ? notificationMessage : ' ',
+		badge: await getBadgeCount(userId),
+		usersTo: {
+			userId,
+		},
+		category: canSendMessageToRoom(room, receiverUsername) ? CATEGORY_MESSAGE : CATEGORY_MESSAGE_NOREPLY,
+	});
 	RocketChat.PushNotification.send({
 		roomId: message.rid,
 		payload: {
 			host: Meteor.absoluteUrl(),
 			rid: message.rid,
 			sender: message.u,
+			tag: message.tag || 'text',
 			type: room.t,
 			name: room.name,
 		},

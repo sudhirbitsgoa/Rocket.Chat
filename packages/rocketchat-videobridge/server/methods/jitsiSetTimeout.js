@@ -1,6 +1,5 @@
 Meteor.methods({
-	'jitsi:updateTimeout': (rid) => {
-
+	'jitsi:updateTimeout': (rid, tag) => {
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'jitsi:updateTimeout' });
 		}
@@ -19,10 +18,16 @@ Meteor.methods({
 			});
 			const room = RocketChat.models.Rooms.findOneById(rid);
 			message.msg = TAPi18n.__('Started_a_video_call');
+			message.tag = tag.tag;
+			const user = RocketChat.models.Users.findOne(Meteor.userId(), {
+				fields: {
+					username: 1,
+				},
+			});
 			message.mentions = [
 				{
-					_id:'here',
-					username:'here',
+					_id: Meteor.userId(),
+					username: user.username,
 				},
 			];
 			RocketChat.callbacks.run('afterSaveMessage', message, room);

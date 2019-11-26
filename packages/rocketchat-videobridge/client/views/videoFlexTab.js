@@ -78,9 +78,13 @@ Template.videoFlexTab.onRendered(function() {
 						RocketChat.TabBar.updateButton('video', { class: 'red' });
 
 						if (RocketChat.settings.get('Jitsi_Open_New_Window') || Meteor.isCordova) {
-							Meteor.call('jitsi:updateTimeout', roomId);
+							Meteor.call('jitsi:updateTimeout', roomId, {
+								tag: 'video',
+							});
 
-							timeOut = Meteor.setInterval(() => Meteor.call('jitsi:updateTimeout', roomId), 10 * 1000);
+							timeOut = Meteor.setInterval(() => Meteor.call('jitsi:updateTimeout', roomId, {
+								tag: 'video',
+							}), 10 * 1000);
 							let newWindow = null;
 							if (Meteor.isCordova) {
 								newWindow = window.open(`${ (noSsl ? 'http://' : 'https://') + domain }/${ jitsiRoom }`, '_system');
@@ -117,9 +121,13 @@ Template.videoFlexTab.onRendered(function() {
 									this.api.executeCommand('displayName', [Meteor.user().name]);
 								}, 5000);
 
-								Meteor.call('jitsi:updateTimeout', roomId);
+								Meteor.call('jitsi:updateTimeout', roomId, {
+									tag: 'video',
+								});
 
-								timeOut = Meteor.setInterval(() => Meteor.call('jitsi:updateTimeout', roomId), 10 * 1000);
+								timeOut = Meteor.setInterval(() => Meteor.call('jitsi:updateTimeout', roomId, {
+									tag: 'video',
+								}), 10 * 1000);
 							}
 
 							// Execute any commands that might be reactive.  Like name changing.
