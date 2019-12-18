@@ -110,6 +110,7 @@ const sendNotification = ({
 		hasMentionToUser,
 		statusConnection: receiver.statusConnection,
 		roomType,
+		message,
 	})) {
 		notificationSent = true;
 

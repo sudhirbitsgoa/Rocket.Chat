@@ -35,7 +35,7 @@ RocketChat.API.v1.addRoute('getapplication', { authRequired: true }, {
 			fields,
 		}).fetch();
 		users.map(function(e){
-			e.t = "d",
+			e.t = "d";
 			e.fname = e.name
 	   });
 

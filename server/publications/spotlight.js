@@ -67,7 +67,7 @@ Meteor.methods({
 				const contactIds = RocketChat.models.Contacts.findAllByUserId(this.userId)
 					.map((cont) => cont._id);
 				contactIds.push(Meteor.user()._id);
-				result.users = RocketChat.models.Users.findByActiveUsersExcept(text, usernames, userOptions, contactIds).fetch();
+				result.users = RocketChat.models.Users.findByActiveUsersExcept(text, usernames, userOptions, false).fetch();
 			}
 
 			if (type.rooms === true && RocketChat.authz.hasPermission(userId, 'view-c-room')) {
