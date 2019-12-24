@@ -194,9 +194,12 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 			ts: {
 				$lt: timestamp,
 			},
-			attachments: {
-				$exists : true,
+			'attachments.audio_url': {
+					$exists : true,
 			},
+			'attachments.video_url': {
+				$exists : true,
+		    },
 		};
 
 		return this.find(query, options);
