@@ -185,6 +185,23 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 		return this.find(query, options);
 	}
 
+	findAudioVideoVisibleByRoomIdBetweenTimestamps(roomId, timestamp, options) {
+		const query = {
+			_hidden: {
+				$ne: true,
+			},
+			rid: roomId,
+			ts: {
+				$lt: timestamp,
+			},
+			attachments: {
+				$exists : true,
+			},
+		};
+
+		return this.find(query, options);
+	}
+
 	findVisibleByRoomIdBetweenTimestampsInclusive(roomId, afterTimestamp, beforeTimestamp, options) {
 		const query = {
 			_hidden: {

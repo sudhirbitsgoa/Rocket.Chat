@@ -133,7 +133,6 @@ RocketChat.API.v1.addRoute(['dm.files', 'im.files'], { authRequired: true }, {
 RocketChat.API.v1.addRoute(['dm.history', 'im.history'], { authRequired: true }, {
 	get() {
 		const findResult = findDirectMessageRoom(this.requestParams(), this.user);
-
 		let latestDate = new Date();
 		if (this.queryParams.latest) {
 			latestDate = new Date(this.queryParams.latest);
@@ -154,8 +153,52 @@ RocketChat.API.v1.addRoute(['dm.history', 'im.history'], { authRequired: true },
 		const unreads = this.queryParams.unreads || false;
 
 		let result;
+		
 		Meteor.runAsUser(this.userId, () => {
 			result = Meteor.call('getChannelHistory', {
+				rid: findResult.room._id,
+				latest: latestDate,
+				oldest: oldestDate,
+				inclusive,
+				count,
+				unreads,
+			});
+		});
+
+		if (!result) {
+			return RocketChat.API.v1.unauthorized();
+		}
+
+		return RocketChat.API.v1.success(result);
+	},
+});
+
+RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
+	get() {
+		const findResult = findDirectMessageRoom(this.requestParams(), this.user);
+		let latestDate = new Date();
+		if (this.queryParams.latest) {
+			latestDate = new Date(this.queryParams.latest);
+		}
+
+		let oldestDate = undefined;
+		if (this.queryParams.oldest) {
+			oldestDate = new Date(this.queryParams.oldest);
+		}
+
+		const inclusive = this.queryParams.inclusive || false;
+
+		let count = 20;
+		if (this.queryParams.count) {
+			count = parseInt(this.queryParams.count);
+		}
+
+		const unreads = this.queryParams.unreads || false;
+
+		let result;
+		
+		Meteor.runAsUser(this.userId, () => {
+			result = Meteor.call('getAudioVideoHistory', {
 				rid: findResult.room._id,
 				latest: latestDate,
 				oldest: oldestDate,
