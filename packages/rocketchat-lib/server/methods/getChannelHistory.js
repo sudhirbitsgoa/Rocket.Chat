@@ -115,7 +115,7 @@ Meteor.methods({
 			latest = new Date();
 		}
 
-		// Verify oldest is a date if it exists
+		
 		if (!_.isUndefined(oldest) && !_.isDate(oldest)) {
 			throw new Meteor.Error('error-invalid-date', 'Invalid date', { method: 'getChannelHistory' });
 		}
