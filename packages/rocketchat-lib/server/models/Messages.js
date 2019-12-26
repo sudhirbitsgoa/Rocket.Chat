@@ -194,12 +194,7 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 			ts: {
 				$lt: timestamp,
 			},
-			'attachments.audio_url': {
-					$exists : true,
-			},
-			'attachments.video_url': {
-				$exists : true,
-		    },
+			'actionLinks.method_id': 'joinJitsiCall',
 		};
 
 		return this.find(query, options);
