@@ -9,7 +9,7 @@ Meteor.methods({
 
 		const jitsiTimeout = new Date((room && room.jitsiTimeout) || currentTime).getTime();
 
-		if (jitsiTimeout <= currentTime) {
+		if (jitsiTimeout <= currentTime || tag.tag === 'new') {
 			RocketChat.models.Rooms.setJitsiTimeout(rid, new Date(currentTime + 35 * 1000));
 			const message = RocketChat.models.Messages.createWithTypeRoomIdMessageAndUser('jitsi_call_started', rid, '', Meteor.user(), {
 				actionLinks : [
@@ -18,7 +18,7 @@ Meteor.methods({
 			});
 			const room = RocketChat.models.Rooms.findOneById(rid);
 			message.msg = TAPi18n.__('Started_a_video_call');
-			message.tag = tag.tag;
+			message.tag = tag.type;
 			const user = RocketChat.models.Users.findOne(Meteor.userId(), {
 				fields: {
 					username: 1,

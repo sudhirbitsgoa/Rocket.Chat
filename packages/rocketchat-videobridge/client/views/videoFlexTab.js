@@ -83,7 +83,8 @@ Template.videoFlexTab.onRendered(function() {
 							});
 
 							timeOut = Meteor.setInterval(() => Meteor.call('jitsi:updateTimeout', roomId, {
-								tag: 'video',
+								tag: 'new',
+								type: 'video',
 							}), 10 * 1000);
 							let newWindow = null;
 							if (Meteor.isCordova) {
@@ -122,11 +123,13 @@ Template.videoFlexTab.onRendered(function() {
 								}, 5000);
 
 								Meteor.call('jitsi:updateTimeout', roomId, {
-									tag: 'video',
+									tag: 'new',
+									type: 'video',
 								});
 
 								timeOut = Meteor.setInterval(() => Meteor.call('jitsi:updateTimeout', roomId, {
-									tag: 'video',
+									tag: 'new',
+									type: 'video',
 								}), 10 * 1000);
 							}
 
