@@ -82,8 +82,7 @@ export function shouldNotifyMobile({
 	isHighlighted,
 	hasMentionToUser,
 	statusConnection,
-	roomType,
-	message,
+	roomType
 }) {
 	if (disableAllMessageNotifications && mobilePushNotifications == null) {
 		return false;
@@ -93,7 +92,7 @@ export function shouldNotifyMobile({
 		return false;
 	}
 
-	if (!alwaysNotifyMobileBoolean && statusConnection === 'online' && !message.tag) {
+	if (!alwaysNotifyMobileBoolean) {
 		return false;
 	}
 
