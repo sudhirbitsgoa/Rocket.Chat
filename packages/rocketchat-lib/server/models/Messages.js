@@ -77,6 +77,18 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 		return this.find(query, options);
 	}
 
+	findAudioVideoVisibleByRoomIdBetweenTimestamps(roomId, options) {
+		const query = {
+			_hidden: {
+				$ne: true,
+			},
+			rid: roomId,
+			'actionLinks.method_id': 'joinJitsiCall',
+		};
+
+		return this.find(query, options);
+	}
+
 	findVisibleByRoomId(roomId, options) {
 		const query = {
 			_hidden: {
@@ -185,20 +197,7 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 		return this.find(query, options);
 	}
 
-	findAudioVideoVisibleByRoomIdBetweenTimestamps(roomId, timestamp, options) {
-		const query = {
-			_hidden: {
-				$ne: true,
-			},
-			rid: roomId,
-			ts: {
-				$lt: timestamp,
-			},
-			'actionLinks.method_id': 'joinJitsiCall',
-		};
-
-		return this.find(query, options);
-	}
+	
 
 	findVisibleByRoomIdBetweenTimestampsInclusive(roomId, afterTimestamp, beforeTimestamp, options) {
 		const query = {
