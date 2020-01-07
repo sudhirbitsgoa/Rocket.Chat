@@ -89,6 +89,18 @@ RocketChat.models.Messages = new class extends RocketChat.models._Base {
 		return this.find(query, options);
 	}
 
+	findAudioVideoVisibleByUserId(userId, options) {
+		const query = {
+			_hidden: {
+				$ne: true,
+			},
+			'u._id': userId,
+			'actionLinks.method_id': 'joinJitsiCall',
+		};
+
+		return this.find(query, options);
+	}
+
 	findVisibleByRoomId(roomId, options) {
 		const query = {
 			_hidden: {

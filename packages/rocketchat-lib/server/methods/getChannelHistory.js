@@ -112,4 +112,11 @@ Meteor.methods({
 
 	    return RocketChat.models.Messages.findAudioVideoVisibleByRoomIdBetweenTimestamps(rid, options).fetch();
 	},
+	getAudioVideoHistoryByUserId({ userid, options}) {
+		if (!Meteor.userId()) {
+			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'getChannelHistory' });
+		}
+		
+	    return RocketChat.models.Messages.findAudioVideoVisibleByUserId(userid, options).fetch();
+	},
 });

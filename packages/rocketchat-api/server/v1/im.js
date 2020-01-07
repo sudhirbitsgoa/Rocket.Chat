@@ -132,30 +132,55 @@ RocketChat.API.v1.addRoute(['dm.files', 'im.files'], { authRequired: true }, {
 
 RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 	get() {
-		const findResult = findDirectMessageRoom(this.requestParams(), this.user);
-		const { offset, count } = this.getPaginationItems();
-		const { sort } = this.parseJsonQuery();
-		// let result;
-		const result = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
-			rid: findResult.room._id,
-			options: {
-				sort: sort ? sort : { ts: 1 },
-				skip: offset,
-				limit: count,
-			},
-		}));
-
-		const allresults = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
-			rid: findResult.room._id,
-			options: {},
-		}));
-		
-		return RocketChat.API.v1.success({
-			result,
-			count: result.length,
-			offset,
-			total: allresults.length,
-		});
+		const roomId = this.requestParams().roomId;
+		if(roomId){
+			const findResult = findDirectMessageRoom(this.requestParams(), this.user);
+			const { offset, count } = this.getPaginationItems();
+			const { sort } = this.parseJsonQuery();
+			const result = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
+				rid: findResult.room._id,
+				options: {
+					sort: sort ? sort : { ts: 1 },
+					skip: offset,
+					limit: count,
+				},
+			}));
+	
+			const allresults = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
+				rid: findResult.room._id,
+				options: {},
+			}));
+			
+			return RocketChat.API.v1.success({
+				result,
+				count: result.length,
+				offset,
+				total: allresults.length,
+			});
+		}else{
+			const { offset, count } = this.getPaginationItems();
+			const { sort } = this.parseJsonQuery();
+			const result = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistoryByUserId', {
+				userid: this.userId,
+				options: {
+					sort: sort ? sort : { ts: 1 },
+					skip: offset,
+					limit: count,
+				},
+			}));
+	
+			const allresults = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistoryByUserId', {
+				userid: this.userId,
+				options: {},
+			}));
+			
+			return RocketChat.API.v1.success({
+				result,
+				count: result.length,
+				offset,
+				total: allresults.length,
+			});
+		}	
 	},
 });
 
