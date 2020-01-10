@@ -137,6 +137,19 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 			const findResult = findDirectMessageRoom(this.requestParams(), this.user);
 			const { offset, count } = this.getPaginationItems();
 			const { sort } = this.parseJsonQuery();
+
+			const cursor = RocketChat.models.Subscriptions.findByRoomId(findResult.room._id, {
+				sort: { 'u.username':  sort && sort.username ? sort.username : 1 }
+			});
+	
+			const total = cursor.count();
+			const members = cursor.fetch().map((s) => s.u && s.u.username);
+	
+			const users = RocketChat.models.Users.find({ username: { $in: members } }, {
+				fields: { _id: 1, username: 1, name: 1, status: 1, utcOffset: 1 },
+				sort: { username:  sort && sort.username ? sort.username : 1 },
+			}).fetch();
+			 
 			const result = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
 				rid: findResult.room._id,
 				options: {
@@ -145,11 +158,18 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 					limit: count,
 				},
 			}));
+			
+			result.map(function(e){
+				e.users = users;
+		    });
+			//const logs = result.map((log) => log.users = users);
+			//console.log("result is",logs);
 	
 			const allresults = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
 				rid: findResult.room._id,
 				options: {},
 			}));
+			
 			
 			return RocketChat.API.v1.success({
 				result,
