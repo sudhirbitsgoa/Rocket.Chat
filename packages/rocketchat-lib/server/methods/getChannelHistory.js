@@ -110,7 +110,7 @@ Meteor.methods({
 			return false;
 		}
 
-	    return RocketChat.models.Messages.findAudioVideoVisibleByRoomIdBetweenTimestamps(rid, options).fetch();
+		return RocketChat.models.Messages.findAudioVideoVisibleByRoomIdBetweenTimestamps(rid, options).fetch();
 	},
 	getAudioVideoHistoryByUserId({ userid, options}) {
 		if (!Meteor.userId()) {

@@ -133,7 +133,7 @@ RocketChat.API.v1.addRoute(['dm.files', 'im.files'], { authRequired: true }, {
 RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 	get() {
 		const roomId = this.requestParams().roomId;
-		if(roomId){
+		if (roomId) {
 			const findResult = findDirectMessageRoom(this.requestParams(), this.user);
 			const { offset, count } = this.getPaginationItems();
 			const { sort } = this.parseJsonQuery();
@@ -153,11 +153,12 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 			const result = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
 				rid: findResult.room._id,
 				options: {
-					sort: sort ? sort : { ts: 1 },
+					sort: sort ? sort : { ts: -1 },
 					skip: offset,
 					limit: count,
 				},
 			}));
+<<<<<<< HEAD
 			
 			result.map(function(e){
 				e.users = users;
@@ -165,42 +166,45 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 			//const logs = result.map((log) => log.users = users);
 			//console.log("result is",logs);
 	
+=======
+>>>>>>> fix(bugfix): bugfix
 			const allresults = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
 				rid: findResult.room._id,
 				options: {},
 			}));
+<<<<<<< HEAD
 			
 			
+=======
+>>>>>>> fix(bugfix): bugfix
 			return RocketChat.API.v1.success({
 				result,
 				count: result.length,
 				offset,
 				total: allresults.length,
 			});
-		}else{
+		} else {
 			const { offset, count } = this.getPaginationItems();
 			const { sort } = this.parseJsonQuery();
 			const result = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistoryByUserId', {
 				userid: this.userId,
 				options: {
-					sort: sort ? sort : { ts: 1 },
+					sort: sort ? sort : { ts: -1 },
 					skip: offset,
 					limit: count,
 				},
 			}));
-	
 			const allresults = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistoryByUserId', {
 				userid: this.userId,
 				options: {},
 			}));
-			
 			return RocketChat.API.v1.success({
 				result,
 				count: result.length,
 				offset,
 				total: allresults.length,
 			});
-		}	
+		}
 	},
 });
 

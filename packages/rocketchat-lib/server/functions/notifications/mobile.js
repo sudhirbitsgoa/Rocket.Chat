@@ -82,7 +82,7 @@ export function shouldNotifyMobile({
 	isHighlighted,
 	hasMentionToUser,
 	statusConnection,
-	roomType
+	roomType,
 }) {
 	if (disableAllMessageNotifications && mobilePushNotifications == null) {
 		return false;
@@ -93,7 +93,7 @@ export function shouldNotifyMobile({
 	}
 
 	if (!alwaysNotifyMobileBoolean) {
-		return false;
+		// return false;
 	}
 
 	if (!mobilePushNotifications) {
