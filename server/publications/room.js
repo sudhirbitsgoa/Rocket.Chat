@@ -73,13 +73,14 @@ Meteor.methods({
 			};
 		}
 
-		if (bots) {
+		if (bots === 'true') {
 			let botUsers = RocketChat.models.Users.find({
 				roles: 'bot',
 			}, {
 				username: 1,
 			});
 			botUsers = botUsers.map((u) => u.username);
+			console.log('The bts', botUsers);
 			return RocketChat.models.Rooms.findBySubscriptionUserIdBots(Meteor.userId(), botUsers, options).fetch();
 		}
 

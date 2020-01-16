@@ -25,6 +25,7 @@ function findRoomByIdOrName({ params, checkedArchived = true }) {
 
 RocketChat.API.v1.addRoute('rooms.get', { authRequired: true }, {
 	get() {
+		console.log(this.queryParams);
 		const { updatedSince, bots } = this.queryParams;
 
 		let updatedSinceDate;
