@@ -10,7 +10,7 @@ RocketChat.API.v1.addRoute('getapplication', { authRequired: true }, {
 
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields, query } = this.parseJsonQuery();
-
+        const params = this.requestParams();
 		let result;
 		let botUsers = [];
 		Meteor.runAsUser(this.userId, () => { result = Meteor.call('rooms/get', {}); });
@@ -23,8 +23,11 @@ RocketChat.API.v1.addRoute('getapplication', { authRequired: true }, {
 				}
 			}	
 		})
-		query.roles = ['bot'];
-		query.username = { $nin: botUsers};
+        query.roles = ['bot'];
+        query.username = {
+            $regex: new RegExp(params.nameFilter, 'i'),
+            $nin: botUsers
+        };
 		const users = RocketChat.models.Users.find(query, {
 			sort: sort || { username: 1 },
 			skip: offset,
