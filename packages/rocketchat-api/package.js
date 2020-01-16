@@ -48,4 +48,5 @@ Package.onUse(function(api) {
 	api.addFiles('server/v1/users.js', 'server');
 	api.addFiles('server/v1/assets.js', 'server');
 	api.addFiles('server/v1/video-conference.js', 'server');
+	api.addFiles('server/v1/application.js', 'server');
 });
