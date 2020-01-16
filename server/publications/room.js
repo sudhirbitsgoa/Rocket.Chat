@@ -50,7 +50,7 @@ const roomMap = (record) => {
 };
 
 Meteor.methods({
-	'rooms/get'(updatedAt) {
+	'rooms/get'(updatedAt, bots) {
 		let options = { fields };
 
 		if (!Meteor.userId()) {
@@ -71,6 +71,16 @@ Meteor.methods({
 				update: RocketChat.models.Rooms.findBySubscriptionUserIdUpdatedAfter(Meteor.userId(), updatedAt, options).fetch(),
 				remove: RocketChat.models.Rooms.trashFindDeletedAfter(updatedAt, {}, { fields: { _id: 1, _deletedAt: 1 } }).fetch(),
 			};
+		}
+
+		if (bots) {
+			let botUsers = RocketChat.models.Users.find({
+				roles: 'bot',
+			}, {
+				username: 1,
+			});
+			botUsers = botUsers.map((u) => u.username);
+			return RocketChat.models.Rooms.findBySubscriptionUserIdBots(Meteor.userId(), botUsers, options).fetch();
 		}
 
 		return RocketChat.models.Rooms.findBySubscriptionUserId(Meteor.userId(), options).fetch();

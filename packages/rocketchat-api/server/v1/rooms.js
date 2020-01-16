@@ -25,7 +25,7 @@ function findRoomByIdOrName({ params, checkedArchived = true }) {
 
 RocketChat.API.v1.addRoute('rooms.get', { authRequired: true }, {
 	get() {
-		const { updatedSince } = this.queryParams;
+		const { updatedSince, bots } = this.queryParams;
 
 		let updatedSinceDate;
 		if (updatedSince) {
@@ -37,7 +37,7 @@ RocketChat.API.v1.addRoute('rooms.get', { authRequired: true }, {
 		}
 
 		let result;
-		Meteor.runAsUser(this.userId, () => result = Meteor.call('rooms/get', updatedSinceDate));
+		Meteor.runAsUser(this.userId, () => result = Meteor.call('rooms/get', updatedSinceDate, bots));
 
 		if (Array.isArray(result)) {
 			result = {
