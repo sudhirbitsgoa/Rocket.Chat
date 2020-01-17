@@ -158,25 +158,10 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 					limit: count,
 				},
 			}));
-<<<<<<< HEAD
-			
-			result.map(function(e){
-				e.users = users;
-		    });
-			//const logs = result.map((log) => log.users = users);
-			//console.log("result is",logs);
-	
-=======
->>>>>>> fix(bugfix): bugfix
 			const allresults = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
 				rid: findResult.room._id,
 				options: {},
 			}));
-<<<<<<< HEAD
-			
-			
-=======
->>>>>>> fix(bugfix): bugfix
 			return RocketChat.API.v1.success({
 				result,
 				count: result.length,
