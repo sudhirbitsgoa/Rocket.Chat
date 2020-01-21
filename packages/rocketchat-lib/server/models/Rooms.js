@@ -132,7 +132,7 @@ class ModelRooms extends RocketChat.models._Base {
 			},
 		};
 
-		return this.find(query, options);
+		return this.find(query);
 	}
 
 	findBySubscriptionTypeAndUserId(type, userId, options) {
