@@ -5,8 +5,7 @@ let window = 2; // minites
 function sendSMS(toNumber, message, otp) {
 	console.log('the otp is', otp);
 	const apiKey = 'A932b8f7a2dac6ee5a679fa6b53ea8bae';
-	let template = message || `%3C%23%3E \d\d\d\d is the OTP to log in to Chaturai App.  This is valid for ${window} minutes.
-eFamcaJwveo`;
+	let template = message || `%3C%23%3E \d\d\d\d is the OTP to log in to Chaturai App.  This is valid for ${window} minutes. ${process.env.SMSCODE}`;
 	template = template.replace('\d\d\d\d', otp);
 	template = template.replace(/\s/g, '+');
 	let url2 = `https://api-alerts.solutionsinfini.com/v4/?method=sms&api_key=${apiKey}&to=${toNumber}&sender=CHATUR&message=${template}&format=json`;
