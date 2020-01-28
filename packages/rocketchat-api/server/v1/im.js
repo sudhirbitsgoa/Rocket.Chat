@@ -254,7 +254,7 @@ RocketChat.API.v1.addRoute(['dm.members', 'im.members'], { authRequired: true },
 		const members = cursor.fetch().map((s) => s.u && s.u.username);
 
 		const users = RocketChat.models.Users.find({ username: { $in: members } }, {
-			fields: { _id: 1, username: 1, name: 1, status: 1, utcOffset: 1 },
+			fields: { _id: 1, username: 1, name: 1, status: 1, utcOffset: 1, roles: 1 },
 			sort: { username:  sort && sort.username ? sort.username : 1 },
 		}).fetch();
 
