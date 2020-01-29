@@ -6,6 +6,8 @@ RocketChat.API.v1.addRoute('video-conference/jitsi.update-timeout', { authRequir
 		const API = RocketChat.API;
 		const { roomId } = this.bodyParams;
 		const tag = this.bodyParams.tag;
+		const type = this.bodyParams.type;
+		console.log("tag and type value is",tag,type);
 		// tag = {
 		// 	tag: 'video'
 		// }
@@ -18,7 +20,7 @@ RocketChat.API.v1.addRoute('video-conference/jitsi.update-timeout', { authRequir
 			return API.v1.failure('Room does not exist!');
 		}
 
-		Meteor.runAsUser(this.userId, () => Meteor.call('jitsi:updateTimeout', roomId, tag));
+		Meteor.runAsUser(this.userId, () => Meteor.call('jitsi:updateTimeout', roomId, tag, type));
 
 		return API.v1.success({ jitsiTimeout: Rooms.findOneById(roomId).jitsiTimeout });
 	},

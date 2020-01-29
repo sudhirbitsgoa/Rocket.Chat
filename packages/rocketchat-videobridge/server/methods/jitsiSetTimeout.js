@@ -1,15 +1,14 @@
 Meteor.methods({
-	'jitsi:updateTimeout': (rid, tag) => {
+	'jitsi:updateTimeout': (rid, tag, type) => {
 		if (!Meteor.userId()) {
 			throw new Meteor.Error('error-invalid-user', 'Invalid user', { method: 'jitsi:updateTimeout' });
 		}
-
 		const room = RocketChat.models.Rooms.findOneById(rid);
 		const currentTime = new Date().getTime();
 
 		const jitsiTimeout = new Date((room && room.jitsiTimeout) || currentTime).getTime();
 
-		if (jitsiTimeout <= currentTime || tag.tag === 'new') {
+		if (jitsiTimeout <= currentTime || type === 'new') {
 			RocketChat.models.Rooms.setJitsiTimeout(rid, new Date(currentTime + 35 * 1000));
 			const message = RocketChat.models.Messages.createWithTypeRoomIdMessageAndUser('jitsi_call_started', rid, '', Meteor.user(), {
 				actionLinks : [
@@ -18,7 +17,7 @@ Meteor.methods({
 			});
 			const room = RocketChat.models.Rooms.findOneById(rid);
 			message.msg = TAPi18n.__('Started_a_video_call');
-			message.tag = tag.type;
+			message.tag = tag;
 			const user = RocketChat.models.Users.findOne(Meteor.userId(), {
 				fields: {
 					username: 1,
