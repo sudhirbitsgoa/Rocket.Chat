@@ -11,7 +11,6 @@ RocketChat.API.v1.addRoute('getapplication', { authRequired: true }, {
 		const { offset, count } = this.getPaginationItems();
 		const { sort, fields, query } = this.parseJsonQuery();
 		const params = this.requestParams();
-		console.log("params value are",params.interect);
 		let result;
 		let botUsers = [];
 		Meteor.runAsUser(this.userId, () => { result = Meteor.call('rooms/get', {}); });
