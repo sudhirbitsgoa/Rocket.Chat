@@ -16,7 +16,8 @@ Meteor.methods({
 				],
 			});
 			const room = RocketChat.models.Rooms.findOneById(rid);
-			message.msg = TAPi18n.__('Started_a_video_call');
+		    message.msg = `Started a ${tag} call.`;
+			//message.msg = TAPi18n.__('Started_a_video_call');
 			message.tag = tag;
 			const user = RocketChat.models.Users.findOne(Meteor.userId(), {
 				fields: {

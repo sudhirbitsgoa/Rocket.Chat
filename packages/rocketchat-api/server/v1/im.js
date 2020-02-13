@@ -162,12 +162,14 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 				rid: findResult.room._id,
 				options: {},
 			}));
+			result.map(function(e){
+				e.users = users;
+			})		
 			return RocketChat.API.v1.success({
 				result,
 				count: result.length,
 				offset,
-				total: allresults.length,
-				users: users
+				total: allresults.length
 			});
 		} else {
 			const { offset, count } = this.getPaginationItems();
