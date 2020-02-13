@@ -144,12 +144,12 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 	
 			const total = cursor.count();
 			const members = cursor.fetch().map((s) => s.u && s.u.username);
-	
+
 			const users = RocketChat.models.Users.find({ username: { $in: members } }, {
 				fields: { _id: 1, username: 1, name: 1, status: 1, utcOffset: 1 },
 				sort: { username:  sort && sort.username ? sort.username : 1 },
 			}).fetch();
-			 
+			
 			const result = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistory', {
 				rid: findResult.room._id,
 				options: {
@@ -162,15 +162,19 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 				rid: findResult.room._id,
 				options: {},
 			}));
+			result.map(function(e){
+				e.users = users;
+			})		
 			return RocketChat.API.v1.success({
 				result,
 				count: result.length,
 				offset,
-				total: allresults.length,
+				total: allresults.length
 			});
 		} else {
 			const { offset, count } = this.getPaginationItems();
 			const { sort } = this.parseJsonQuery();
+			const curUserId = this.userId;
 			const result = Meteor.runAsUser(this.userId, () => Meteor.call('getAudioVideoHistoryByUserId', {
 				userid: this.userId,
 				options: {
@@ -183,6 +187,22 @@ RocketChat.API.v1.addRoute(['logs.history'], { authRequired: true }, {
 				userid: this.userId,
 				options: {},
 			}));
+			result.map(function(e){
+				const cursor = RocketChat.models.Subscriptions.findByRoomId(e.rid, {
+					sort: { 'u.username':  sort && sort.username ? sort.username : 1 }
+				});
+				const members = cursor.fetch().map((s) => s.u && s.u.username);
+				const users = RocketChat.models.Users.find({ username: { $in: members } }, {
+					fields: { _id: 1, username: 1, name: 1, status: 1, utcOffset: 1 },
+					sort: { username:  sort && sort.username ? sort.username : 1 },
+				}).fetch();
+				users.map(function(user){
+					if(user._id != curUserId){
+                        e.otherUserDetails = user;
+					}
+				})
+				
+			})
 			return RocketChat.API.v1.success({
 				result,
 				count: result.length,
