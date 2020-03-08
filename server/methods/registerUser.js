@@ -1,12 +1,23 @@
 import s from 'underscore.string';
 import speakeasy from 'speakeasy';
-let window = 2; // minites
+import Nexmo from 'nexmo';
+
+const nexmo = new Nexmo({
+	apiKey: '6f1a93cb',
+	apiSecret: 'shRibbR4ayz0ySDo',
+});
+const from = 'Nexmo';
+const window = 2; // minutes
 
 function sendSMS(toNumber, message, otp) {
 	console.log('the otp is', otp);
 	const apiKey = 'A932b8f7a2dac6ee5a679fa6b53ea8bae';
 	let template = message || `%3C%23%3E \d\d\d\d is the OTP to log in to Chaturai App.  This is valid for ${window} minutes. ${process.env.SMSCODE}`;
 	template = template.replace('\d\d\d\d', otp);
+	if (!toNumber.includes('+91')) {
+		template = template.replace('%3C%23%3E', '#');
+		return nexmo.message.sendSms(from, toNumber, template);
+	}
 	template = template.replace(/\s/g, '+');
 	let url2 = `https://api-alerts.solutionsinfini.com/v4/?method=sms&api_key=${apiKey}&to=${toNumber}&sender=CHATUR&message=${template}&format=json`;
     var res = HTTP.call('POST', url2);
@@ -15,9 +26,9 @@ function sendSMS(toNumber, message, otp) {
 
 function generateToken(secret) {
 	console.log('the secret used', secret);
-	return token = speakeasy.totp({
-	  secret,
-	  encoding: 'base32'
+	return speakeasy.totp({
+		secret,
+		encoding: 'base32',
 	});
 }
 // var secrett = speakeasy.generateSecret(); // only for new users
@@ -47,21 +58,20 @@ Meteor.methods({
 			const { id, token } = Accounts._loginUser(this, userId);
 
 			return { id, token };
-		} else {
-			check(formData, Match.ObjectIncluding({
-				email: Match.Optional(String),
-				pass: Match.Optional(String),
-				name: Match.Optional(String),
-				secretURL: Match.Optional(String),
-				reason: Match.Optional(String),
-				contact: Match.Optional(String)
-			}));
 		}
+		check(formData, Match.ObjectIncluding({
+			email: Match.Optional(String),
+			pass: Match.Optional(String),
+			name: Match.Optional(String),
+			secretURL: Match.Optional(String),
+			reason: Match.Optional(String),
+			contact: Match.Optional(String)
+		}));
 
 		if (RocketChat.settings.get('Accounts_RegistrationForm') === 'Disabled') {
 			throw new Meteor.Error('error-user-registration-disabled', 'User registration is disabled', { method: 'registerUser' });
 		} else if (RocketChat.settings.get('Accounts_RegistrationForm') === 'Secret URL' && (!formData.secretURL || formData.secretURL !== RocketChat.settings.get('Accounts_RegistrationForm_SecretURL'))) {
-			throw new Meteor.Error ('error-user-registration-secret', 'User registration is only allowed via Secret URL', { method: 'registerUser' });
+			throw new Meteor.Error('error-user-registration-secret', 'User registration is only allowed via Secret URL', { method: 'registerUser' });
 		}
 
 		let secret,	importedUser, invitedUser;
@@ -71,13 +81,13 @@ Meteor.methods({
 			reason: formData.reason,
 			phones: [{
 				number: formData.contact,
-				verified: false
-			}]
+				verified: false,
+			}],
 		};
 		if (formData.email) { // if email is present then only
 			RocketChat.passwordPolicy.validate(formData.pass);
 		} else {
-			let randomPass = Math.random()*1000000;
+			const randomPass = Math.random() * 1000000;
 			userData.password = formData.pass = `${randomPass}PASS`;
 		}
 		if (formData.contact) { // give priority to contact
@@ -157,5 +167,5 @@ Meteor.methods({
 		}
 		RocketChat.models.Users.setContactVerified(user._id, this.bodyParams.contact);
 		return user;
-	}
+	},
 });
